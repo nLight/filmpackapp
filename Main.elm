@@ -51,7 +51,7 @@ model =
 update msg model =
     case msg of
         SetToken new_token ->
-            { model | token = Maybe.Just new_token }
+            model
 
 
 type alias Token =
@@ -136,5 +136,5 @@ stream data =
 view model =
     div []
         [ h1 [] [ text "Filmpack" ]
-        , (List.map stream model.users)
+        , div [] (List.map stream model.users)
         ]
