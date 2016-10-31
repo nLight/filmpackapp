@@ -8,8 +8,19 @@ import Basics exposing (toString)
 import Maybe
 
 
+main : Program (Maybe Model)
 main =
-    App.beginnerProgram { model = model, view = view, update = update }
+    App.programWithFlags
+        { init = init
+        , view = view
+        , update = update
+        , subscriptions = \_ -> Sub.none
+        }
+
+
+init : Maybe Model -> ( Model, Cmd Msg )
+init savedModel =
+    Maybe.withDefault emptyModel savedModel ! []
 
 
 token =
@@ -43,15 +54,16 @@ redshoesphoto =
     }
 
 
-model =
-    { users = [ redshoesphoto ]
+emptyModel =
+    { users = []
     }
 
 
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         SetToken new_token ->
-            model
+            model ! []
 
 
 type alias Token =
