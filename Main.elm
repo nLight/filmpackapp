@@ -23,16 +23,8 @@ init savedModel =
     Maybe.withDefault emptyModel savedModel ! []
 
 
-token =
-    Maybe.Just "1"
-
-
-
--- token = Maybe.Nothing
-
-
 redshoesphoto =
-    { token = token
+    { token = Maybe.Just "1"
     , user = user
     , feed =
         [ { src = "photo_1"
@@ -114,7 +106,7 @@ type Msg
 
 
 login_button =
-    a [ href "http://instagram.com" ] [ text "+ Add account" ]
+    a [ href "https://api.instagram.com/oauth/authorize/?client_id=a59977aae66341598cb366c081e0b62d&redirect_uri=http://packfilmapp.com&response_type=token" ] [ text "+ Add account" ]
 
 
 comment data =
@@ -147,6 +139,7 @@ stream data =
 
 view model =
     div []
-        [ h1 [] [ text "Filmpack" ]
+        [ h1 [] [ text "Packfilm" ]
         , div [] (List.map stream model.users)
+        , div [] [ login_button ]
         ]
