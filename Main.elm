@@ -7,59 +7,61 @@ import Html.Events exposing (onClick)
 import Basics exposing (toString)
 import Maybe
 
-
-main : Program (Maybe Model)
 main =
-    App.programWithFlags
-        { init = init
-        , view = view
-        , update = update
-        , subscriptions = \_ -> Sub.none
-        }
+  App.beginnerProgram { model = model, view = view, update = update }
 
+token = Maybe.Just "229274478.a59977a.c545ddf8725c4e12a5f5fd0855cc1d1c"
+-- token = Maybe.Nothing
 
-init : Maybe Model -> ( Model, Cmd Msg )
-init savedModel =
-    Maybe.withDefault emptyModel savedModel ! []
+redshoesphoto_user =
+  { username = "redshoesphoto"
+  , bio = "Medium format film photography. Vintage lenses. Film camera porn. Accidental street photography."
+  , website = "http://500px.com/DmitriyRozhkov"
+  , profile_picture = "https://scontent.cdninstagram.com/t51.2885-19/s150x150/13741168_1668724680119991_969969310_a.jpg"
+  , full_name = "Senior Software Photographer"
+  , counts =
+    { media = 652
+    , followed_by = 150
+    , follows = 159
+    }
+  , id = "229274478"
+  }
 
 
 redshoesphoto =
-    { token = Maybe.Just "1"
-    , user = user
-    , feed =
-        [ { src = "photo_1"
-          , likes = 100
-          , views = Maybe.Nothing
-          , comments =
-                [ { text = "Hey!"
-                  }
-                , { text = "One more comment"
-                  }
-                ]
-          }
-        , { src = "photo_2"
-          , likes = 0
-          , views = Maybe.Just 12
-          , comments = []
-          }
-        ]
-    }
+  { token = token
+  , user = redshoesphoto_user
+  , feed =
+      [ { src = "photo_1"
+        , likes = 100
+        , views = Maybe.Nothing
+        , comments =
+          [ { text = "Hey!"
+            }
+          , { text = "One more comment"
+            }
+          ]
+        }
+      , { src = "photo_2"
+        , likes = 0
+        , views = Maybe.Just 12
+        , comments = []
+        }
+      ]
+  }
 
+model =
+  { users = [ redshoesphoto ]
+  }
 
-emptyModel =
-    { users = []
-    }
-
-
-update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case msg of
-        SetToken new_token ->
-            model ! []
+  case msg of
+    SetToken new_token ->
+      {model | token = Maybe.Just new_token}
 
+type alias Token = Maybe String
 
-type alias Token =
-    Maybe String
+type alias Feed = List Media
 
 
 type alias Feed =
@@ -67,33 +69,44 @@ type alias Feed =
 
 
 type alias Stream =
-    { token : Token
-    , feed : Feed
-    , user : User
-    }
+  { token : Token
+  , feed : Feed
+  , user : User
+  }
 
 
 type alias Model =
-    { users : List Stream
-    }
+  { users : List Stream
+  }
 
+type alias UserCounts =
+  { media : Int,
+    followed_by : Int,
+    follows : Int
+  }
 
 type alias User =
-    { name : String
-    }
+  { username : String,
+    bio : String,
+    website : String,
+    profile_picture : String,
+    full_name : String,
+    counts : UserCounts,
+    id : String
+  }
 
 
 type alias Comment =
-    { text : String
-    }
+  { text : String
+  }
 
 
 type alias Media =
-    { src : String
-    , likes : Int
-    , views : Maybe Int
-    , comments : List Comment
-    }
+  { src : String
+  , likes : Int
+  , views : Maybe Int
+  , comments : List Comment
+  }
 
 
 user : User
@@ -110,36 +123,35 @@ login_button =
 
 
 comment data =
-    div [] [ text data.text ]
+  div [] [ text data.text ]
 
 
 media data =
-    div []
-        [ img [ src data.src ] []
-        , div [] [ text "Likes: ", text (toString data.likes) ]
-        , div [] (List.map comment data.comments)
-        ]
+  div []
+    [ img [ src data.src ] []
+    , div [] [ text "Likes: ", text (toString data.likes) ]
+    , div [] ( List.map comment data.comments )
+    ]
 
-
-app model =
-    div []
-        [ div [] [ text model.user.name ]
-        , div [] (List.map media model.feed)
-        ]
+app data =
+  div []
+    [ div [] [ text data.user.username ]
+    , div [] ( List.map media data.feed )
+    ]
 
 
 stream data =
-    case data.token of
-        Maybe.Nothing ->
-            login_button
+  case data.token of
+    Maybe.Nothing ->
+      login_button
 
-        Maybe.Just token ->
-            app data
+    Maybe.Just token ->
+      app data
 
 
 view model =
-    div []
+  div []
         [ h1 [] [ text "Packfilm" ]
         , div [] (List.map stream model.users)
         , div [] [ login_button ]
-        ]
+    ]
