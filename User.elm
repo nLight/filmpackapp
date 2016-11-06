@@ -46,12 +46,12 @@ decoder =
         ("id" := Decode.string)
 
 
-getUserSelf : String -> Task Http.Error (Model)
+getUserSelf : String -> Task Http.Error Model
 getUserSelf token =
     Http.get decoder ("https://api.instagram.com/v1/users/self/?access_token=" ++ token)
 
 
-getUser : String -> String -> Task Http.Error (Model)
+getUser : String -> String -> Task Http.Error Model
 getUser token id =
     Http.get decoder ("https://api.instagram.com/v1/users/" ++ id ++ "/?access_token=" ++ token)
 

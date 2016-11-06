@@ -8,7 +8,7 @@ import Maybe
 import User
 import Task
 import Http
-import Token exposing (getToken)
+import Token
 
 
 main =
@@ -41,26 +41,31 @@ redshoesphoto_user =
 getUser token =
     case token of
         Just token ->
-            User.getUserSelf token |> Task.perform GetUserError GetUserSuccess
+            User.getUserSelf token
 
         Nothing ->
-            Cmd.none
+            Task.fail (Http.UnexpectedPayload "")
+
+
+getToken =
+    Token.getToken
 
 
 init =
-    { user = Maybe.Nothing
-    , token = Maybe.Nothing
-    }
-        ! [ getToken |> Task.perform ErrorToken SuccessToken ]
+    ( { user = Maybe.Nothing
+      , token = Maybe.Nothing
+      }
+    , getToken `Task.andThen` getUser |> Task.perform GetUserError GetUserSuccess
+    )
 
 
 update msg model =
     case msg of
-        GetUser ->
-            ( model, getUser model.token )
-
+        -- GetUser ->
+        --     ( model, getUser model.token )
+        --
         GetUserSuccess user ->
-            ( model, Cmd.none )
+            ( { model | user = user }, Cmd.none )
 
         GetUserError error ->
             ( model, Cmd.none )
@@ -109,7 +114,6 @@ type alias Media =
 type Msg
     = SuccessToken (Maybe String)
     | ErrorToken String
-    | GetUser
     | GetUserSuccess User.Model
     | GetUserError Http.Error
 
