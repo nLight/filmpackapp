@@ -8,7 +8,7 @@ import Maybe
 import User
 import Task
 import Http
-import Location exposing (..)
+import Token exposing (getToken)
 
 
 main =
@@ -38,17 +38,6 @@ redshoesphoto_user =
     """
 
 
-
--- getToken : Token
--- getToken =
---     case getLocation of
---         Just location ->
---             Just location.hash
---
---         Nothing ->
---             Nothing
-
-
 getUser token =
     case token of
         Just token ->
@@ -60,16 +49,13 @@ getUser token =
 
 init =
     { user = Maybe.Nothing
-    , token = Just ""
+    , token = Maybe.Nothing
     }
-        ! [ Task.perform SuccessLocation ErrorLocation getLocation ]
+        ! [ getToken |> Task.perform ErrorToken SuccessToken ]
 
 
 update msg model =
     case msg of
-        SetToken token ->
-            ( { model | token = token }, Cmd.none )
-
         GetUser ->
             ( model, getUser model.token )
 
@@ -79,10 +65,10 @@ update msg model =
         GetUserError error ->
             ( model, Cmd.none )
 
-        SuccessLocation s ->
-            ( model, Cmd.none )
+        SuccessToken token ->
+            ( { model | token = token }, Cmd.none )
 
-        ErrorLocation s ->
+        ErrorToken s ->
             ( model, Cmd.none )
 
 
@@ -121,9 +107,8 @@ type alias Media =
 
 
 type Msg
-    = SetToken Token
-    | SuccessLocation String
-    | ErrorLocation String
+    = SuccessToken (Maybe String)
+    | ErrorToken String
     | GetUser
     | GetUserSuccess User.Model
     | GetUserError Http.Error
