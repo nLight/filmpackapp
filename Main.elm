@@ -65,7 +65,7 @@ update msg model =
         --     ( model, getUser model.token )
         --
         GetUserSuccess user ->
-            ( { model | user = user }, Cmd.none )
+            ( { model | user = Just user }, Cmd.none )
 
         GetUserError error ->
             ( model, Cmd.none )
