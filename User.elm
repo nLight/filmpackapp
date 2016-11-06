@@ -1,9 +1,11 @@
 module User exposing (..)
 
-import Json.Decode as Decode exposing (Decoder, (:=))
 import Html exposing (Html, a, div, text, img)
 import Html.App as App
 import Html.Attributes exposing (href, src)
+import Http
+import Json.Decode as Decode exposing (Decoder, (:=))
+import Task exposing (..)
 
 
 type alias Model =
@@ -42,6 +44,21 @@ decoder =
         ("full_name" := Decode.string)
         ("counts" := countsDecoder)
         ("id" := Decode.string)
+
+
+getUserSelf : String -> Task Http.Error (Model)
+getUserSelf token =
+    Http.get decoder ("https://api.instagram.com/v1/users/self/?access_token=" ++ token)
+
+
+getUser : String -> String -> Task Http.Error (Model)
+getUser token id =
+    Http.get decoder ("https://api.instagram.com/v1/users/" ++ id ++ "/?access_token=" ++ token)
+
+
+searchUser : String -> String -> Task Http.Error (List Model)
+searchUser token query =
+    Http.get (Decode.list decoder) ("https://api.instagram.com/v1/users/search/?q=" ++ query ++ "&access_token=" ++ token)
 
 
 view data =

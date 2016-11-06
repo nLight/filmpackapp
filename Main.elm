@@ -4,17 +4,20 @@ import Basics exposing (toString)
 import Html exposing (Html, a, div, text, img, h1)
 import Html.App as App
 import Html.Attributes exposing (href, src)
-import Json.Decode as Decode exposing (Decoder, (:=))
 import Maybe
 import User
+import Task
+import Http
+import Location exposing (..)
 
 
 main =
-    App.beginnerProgram { model = initModel, view = view, update = update }
-
-
-token =
-    Maybe.Just "229274478.a59977a.c545ddf8725c4e12a5f5fd0855cc1d1c"
+    App.program
+        { init = init
+        , view = view
+        , update = update
+        , subscriptions = (always Sub.none)
+        }
 
 
 redshoesphoto_user =
@@ -35,25 +38,52 @@ redshoesphoto_user =
     """
 
 
-initModel : Model
-initModel =
-    let
-        user =
-            Decode.decodeString User.decoder redshoesphoto_user
-    in
-        { users =
-            [ { token = token
-              , feed = []
-              , user = Result.toMaybe user
-              }
-            ]
-        }
+
+-- getToken : Token
+-- getToken =
+--     case getLocation of
+--         Just location ->
+--             Just location.hash
+--
+--         Nothing ->
+--             Nothing
+
+
+getUser token =
+    case token of
+        Just token ->
+            User.getUserSelf token |> Task.perform GetUserError GetUserSuccess
+
+        Nothing ->
+            Cmd.none
+
+
+init =
+    { user = Maybe.Nothing
+    , token = Just ""
+    }
+        ! [ Task.perform SuccessLocation ErrorLocation getLocation ]
 
 
 update msg model =
     case msg of
-        SetToken new_token ->
-            model
+        SetToken token ->
+            ( { model | token = token }, Cmd.none )
+
+        GetUser ->
+            ( model, getUser model.token )
+
+        GetUserSuccess user ->
+            ( model, Cmd.none )
+
+        GetUserError error ->
+            ( model, Cmd.none )
+
+        SuccessLocation s ->
+            ( model, Cmd.none )
+
+        ErrorLocation s ->
+            ( model, Cmd.none )
 
 
 type alias Token =
@@ -72,7 +102,8 @@ type alias Stream =
 
 
 type alias Model =
-    { users : List Stream
+    { user : Maybe User.Model
+    , token : Token
     }
 
 
@@ -90,7 +121,12 @@ type alias Media =
 
 
 type Msg
-    = SetToken String
+    = SetToken Token
+    | SuccessLocation String
+    | ErrorLocation String
+    | GetUser
+    | GetUserSuccess User.Model
+    | GetUserError Http.Error
 
 
 login_button =
@@ -110,20 +146,15 @@ media data =
 
 
 stream data =
-    case data.token of
-        Maybe.Nothing ->
-            login_button
-
-        Maybe.Just token ->
-            div []
-                [ User.view data.user
-                , div [] (List.map media data.feed)
-                ]
+    div []
+        [ User.view data.user
+          -- , div [] (List.map media data.feed)
+        ]
 
 
 view model =
     div []
         [ h1 [] [ text "Packfilm" ]
-        , div [] (List.map stream model.users)
+        , div [] [ stream model ]
         , div [] [ login_button ]
         ]
