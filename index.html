@@ -11,9 +11,7 @@
 </body>
 
 <script type="text/javascript">
-var storedState = localStorage.getItem('filmpack');
-var startingState = storedState ? JSON.parse(storedState) : null;
-var filmpack = Elm.Main.fullscreen(startingState);
+var filmpack = Elm.Main.fullscreen();
 </script>
 
 </html>
