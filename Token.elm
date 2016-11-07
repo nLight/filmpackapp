@@ -9,6 +9,6 @@ type alias Token =
     Maybe String
 
 
-getToken : Task x Token
+getToken : Token
 getToken =
-    Native.Token.getToken
+    Native.Token.getToken ()

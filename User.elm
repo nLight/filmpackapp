@@ -46,19 +46,19 @@ decoder =
         ("id" := Decode.string)
 
 
-getUserSelf : String -> Task Http.Error Model
-getUserSelf token =
-    Http.get decoder ("https://api.instagram.com/v1/users/self/?access_token=" ++ token)
+getUserSelf : String -> String -> Task Http.Error Model
+getUserSelf apiHost token =
+    Http.get decoder (apiHost ++ "/users/self/?access_token=" ++ token)
 
 
-getUser : String -> String -> Task Http.Error Model
-getUser token id =
-    Http.get decoder ("https://api.instagram.com/v1/users/" ++ id ++ "/?access_token=" ++ token)
+getUser : String -> String -> String -> Task Http.Error Model
+getUser apiHost token id =
+    Http.get decoder (apiHost ++ "/v1/users/" ++ id ++ "/?access_token=" ++ token)
 
 
-searchUser : String -> String -> Task Http.Error (List Model)
-searchUser token query =
-    Http.get (Decode.list decoder) ("https://api.instagram.com/v1/users/search/?q=" ++ query ++ "&access_token=" ++ token)
+searchUser : String -> String -> String -> Task Http.Error (List Model)
+searchUser apiHost token query =
+    Http.get (Decode.list decoder) (apiHost ++ "/v1/users/search/?q=" ++ query ++ "&access_token=" ++ token)
 
 
 view data =
@@ -71,6 +71,7 @@ view data =
 
         Maybe.Nothing ->
             div [] []
+
 
 stub =
     """
