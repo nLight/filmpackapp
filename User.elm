@@ -48,17 +48,17 @@ decoder =
 
 getUserSelf : String -> String -> Task Http.Error Model
 getUserSelf apiHost token =
-    Http.get decoder (apiHost ++ "/users/self/?access_token=" ++ token)
+    Http.get decoder (apiHost ++ "/users/self/?callback=instagramApiCallback&access_token=" ++ token)
 
 
 getUser : String -> String -> String -> Task Http.Error Model
 getUser apiHost token id =
-    Http.get decoder (apiHost ++ "/v1/users/" ++ id ++ "/?access_token=" ++ token)
+    Http.get decoder (apiHost ++ "/v1/users/" ++ id ++ "/?callback=instagramApiCallback&access_token=" ++ token)
 
 
 searchUser : String -> String -> String -> Task Http.Error (List Model)
 searchUser apiHost token query =
-    Http.get (Decode.list decoder) (apiHost ++ "/v1/users/search/?q=" ++ query ++ "&access_token=" ++ token)
+    Http.get (Decode.list decoder) (apiHost ++ "/v1/users/search/?q=" ++ query ++ "&callback=instagramApiCallback&access_token=" ++ token)
 
 
 view data =
