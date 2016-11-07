@@ -65,10 +65,26 @@ view data =
     case data of
         Maybe.Just user ->
             div []
-                [ div []
-                    [ text user.username ]
+                [ div [] [ text user.username ]
                 , img [ src user.profile_picture ] []
                 ]
 
         Maybe.Nothing ->
             div [] []
+
+stub =
+    """
+    {
+      "username": "redshoesphoto",
+      "bio": "Medium format film photography. Vintage lenses. Film camera porn. Accidental street photography.",
+      "website": "http://500px.com/DmitriyRozhkov",
+      "profile_picture": "https://scontent.cdninstagram.com/t51.2885-19/s150x150/13741168_1668724680119991_969969310_a.jpg",
+      "full_name": "Senior Software Photographer",
+      "counts": {
+        "media": 652,
+        "followed_by": 150,
+        "follows": 159
+      },
+      "id": "229274478"
+    }
+    """

@@ -9,6 +9,7 @@ import User
 import Task
 import Http
 import Token
+import Json.Decode as Decode exposing (Decoder, (:=))
 
 
 main =
@@ -20,31 +21,16 @@ main =
         }
 
 
-redshoesphoto_user =
-    """
-    {
-      "username": "redshoesphoto",
-      "bio": "Medium format film photography. Vintage lenses. Film camera porn. Accidental street photography.",
-      "website": "http://500px.com/DmitriyRozhkov",
-      "profile_picture": "https://scontent.cdninstagram.com/t51.2885-19/s150x150/13741168_1668724680119991_969969310_a.jpg",
-      "full_name": "Senior Software Photographer",
-      "counts": {
-        "media": 652,
-        "followed_by": 150,
-        "follows": 159
-      },
-      "id": "229274478"
-    }
-    """
-
-
 getUser token =
     case token of
         Just token ->
-            User.getUserSelf token
+            -- User.getUserSelf token
+            case Decode.decodeString User.decoder User.stub of
+              Ok user -> Task.succeed user
+              Err message -> Task.fail message
 
         Nothing ->
-            Task.fail (Http.UnexpectedPayload "")
+            Task.fail "No token"
 
 
 getToken =
@@ -54,6 +40,7 @@ getToken =
 init =
     ( { user = Maybe.Nothing
       , token = Maybe.Nothing
+      , messages = []
       }
     , getToken `Task.andThen` getUser |> Task.perform GetUserError GetUserSuccess
     )
@@ -61,19 +48,16 @@ init =
 
 update msg model =
     case msg of
-        -- GetUser ->
-        --     ( model, getUser model.token )
-        --
         GetUserSuccess user ->
             ( { model | user = Just user }, Cmd.none )
 
         GetUserError error ->
-            ( model, Cmd.none )
+            ( {model | messages = ["error"]}, Cmd.none )
 
         SuccessToken token ->
             ( { model | token = token }, Cmd.none )
 
-        ErrorToken s ->
+        ErrorToken message ->
             ( model, Cmd.none )
 
 
@@ -86,15 +70,16 @@ type alias Feed =
 
 
 type alias Stream =
-    { token : Token
-    , feed : Feed
+    { feed : Feed
     , user : Maybe User.Model
+    , token : Token
     }
 
 
 type alias Model =
     { user : Maybe User.Model
     , token : Token
+    , messages : List String
     }
 
 
@@ -115,23 +100,15 @@ type Msg
     = SuccessToken (Maybe String)
     | ErrorToken String
     | GetUserSuccess User.Model
-    | GetUserError Http.Error
+    | GetUserError String
 
 
-login_button =
-    a [ href "https://api.instagram.com/oauth/authorize/?client_id=a59977aae66341598cb366c081e0b62d&redirect_uri=http://packfilmapp.com&response_type=token" ] [ text "+ Add account" ]
-
-
-comment data =
-    div [] [ text data.text ]
-
-
-media data =
-    div []
-        [ img [ src data.src ] []
-        , div [] [ text "Likes: ", text (toString data.likes) ]
-        , div [] (List.map comment data.comments)
-        ]
+login_button token =
+  case token of
+    Just token ->
+      div [][ text token ]
+    Nothing ->
+      a [ href "https://api.instagram.com/oauth/authorize/?client_id=a59977aae66341598cb366c081e0b62d&redirect_uri=http://packfilmapp.com&response_type=token" ] [ text "Login" ]
 
 
 stream data =
@@ -145,5 +122,6 @@ view model =
     div []
         [ h1 [] [ text "Packfilm" ]
         , div [] [ stream model ]
-        , div [] [ login_button ]
+        , div [] [ login_button model.token ]
+        , div [] ( List.map text model.messages)
         ]
