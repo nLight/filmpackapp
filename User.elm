@@ -70,7 +70,7 @@ view data =
                 ]
 
         Maybe.Nothing ->
-            div [] []
+            div [] [ text "No user data" ]
 
 
 stub =
