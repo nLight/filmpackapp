@@ -6,7 +6,7 @@ import Task
 
 
 devFlags =
-    { apiHost = "http://localhost:9000" }
+    { apiHost = "https://api.instagram.com/v1" }
 
 
 init : Main.Flags -> ( Main.Model, Cmd Main.Msg )
@@ -16,7 +16,7 @@ init flags =
       , token = Main.getToken
       , messages = []
       }
-    , (Main.getUser flags.apiHost Main.getToken) |> Task.perform Main.GetUserError Main.GetUserSuccess
+    , (Main.getUser flags.apiHost Main.getToken) |> Task.perform Main.ApiError Main.ApiSuccess
     )
 
 

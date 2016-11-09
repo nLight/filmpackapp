@@ -19,8 +19,9 @@ type alias Model =
 type Msg
     = SuccessToken (Maybe String)
     | ErrorToken String
-    | GetUserSuccess (Maybe User.Model)
-    | GetUserError String
+    | ApiError String
+    | ApiSuccess (Maybe String)
+    | ApiResult String
 
 
 getUser apiHost token =
@@ -43,12 +44,6 @@ type alias Flags =
 
 update msg model =
     case msg of
-        GetUserSuccess (Just user) ->
-            ( { model | user = Just user }, Cmd.none )
-
-        GetUserError error ->
-            ( { model | messages = [ "error" ] }, Cmd.none )
-
         SuccessToken token ->
             ( { model | token = token }, Cmd.none )
 

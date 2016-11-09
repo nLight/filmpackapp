@@ -1,8 +1,9 @@
-port module App exposing (..)
+module App exposing (..)
 
 import Html.App
 import Main
 import Task
+import User
 
 
 init : Main.Flags -> ( Main.Model, Cmd Main.Msg )
@@ -12,7 +13,7 @@ init flags =
       , token = Main.getToken
       , messages = []
       }
-    , (Main.getUser flags.apiHost Main.getToken) |> Task.perform Main.GetUserError Main.GetUserSuccess
+    , (Main.getUser flags.apiHost Main.getToken) |> Task.perform Main.ApiError Main.ApiSuccess
     )
 
 
@@ -24,10 +25,7 @@ main =
         , subscriptions = subscriptions
         }
 
--- SUBSCRIPTIONS
 
-port api : (String -> msg) -> Sub msg
-
-subscriptions : Model -> Sub Msg
+subscriptions : Main.Model -> Sub Main.Msg
 subscriptions model =
-  suggestions Suggest
+    User.api Main.ApiResult

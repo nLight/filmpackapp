@@ -1,8 +1,7 @@
 port module User exposing (..)
 
-import Html exposing (Html, a, div, text, img)
-import Html.App as App
-import Html.Attributes exposing (href, src)
+import Html exposing (Html, div, text, img)
+import Html.Attributes exposing (src)
 import Http
 import Json.Decode as Decode exposing (Decoder, (:=))
 import Task exposing (..)
@@ -26,6 +25,9 @@ type alias UserCounts =
     }
 
 
+port api : (String -> msg) -> Sub msg
+
+
 countsDecoder : Decoder UserCounts
 countsDecoder =
     Decode.object3 UserCounts
@@ -46,17 +48,17 @@ decoder =
         ("id" := Decode.string)
 
 
-getUserSelf : String -> String -> Task Http.Error Model
+getUserSelf : String -> String -> Task Http.Error String
 getUserSelf apiHost token =
     Http.getString (apiHost ++ "/users/self/?callback=instagramApiCallback&access_token=" ++ token)
 
 
-getUser : String -> String -> String -> Task Http.Error Model
+getUser : String -> String -> String -> Task Http.Error String
 getUser apiHost token id =
     Http.getString (apiHost ++ "/v1/users/" ++ id ++ "/?callback=instagramApiCallback&access_token=" ++ token)
 
 
-searchUser : String -> String -> String -> Task Http.Error (List Model)
+searchUser : String -> String -> String -> Task Http.Error String
 searchUser apiHost token query =
     Http.getString (apiHost ++ "/v1/users/search/?q=" ++ query ++ "&callback=instagramApiCallback&access_token=" ++ token)
 
