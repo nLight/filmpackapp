@@ -2,10 +2,11 @@ module Main exposing (..)
 
 import Html exposing (Html, a, div, text, img, h1)
 import Html.Attributes exposing (href, src)
+import Http
 import Maybe
-import User
 import Task
 import Token
+import User
 
 
 type alias Model =
@@ -20,7 +21,7 @@ type Msg
     = SuccessToken (Maybe String)
     | ErrorToken String
     | ApiError String
-    | ApiSuccess (Maybe String)
+    | ApiSuccess (Maybe Http.Response)
     | ApiResult String
 
 

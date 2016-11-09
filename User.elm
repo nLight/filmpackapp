@@ -48,19 +48,29 @@ decoder =
         ("id" := Decode.string)
 
 
-getUserSelf : String -> String -> Task Http.Error String
+sendApiRequest : String -> String -> String -> Task Http.RawError Http.Response
+sendApiRequest apiHost token url =
+    Http.send Http.defaultSettings
+        { verb = "GET"
+        , headers = [ ( "Accept", "*/*" ) ]
+        , url = (apiHost ++ url ++ "&access_token=" ++ token ++ "&callback=instagramApiCallback")
+        , body = Http.empty
+        }
+
+
+getUserSelf : String -> String -> Task Http.RawError Http.Response
 getUserSelf apiHost token =
-    Http.getString (apiHost ++ "/users/self/?callback=instagramApiCallback&access_token=" ++ token)
+    sendApiRequest apiHost token "/users/self/?"
 
 
-getUser : String -> String -> String -> Task Http.Error String
+getUser : String -> String -> String -> Task Http.RawError Http.Response
 getUser apiHost token id =
-    Http.getString (apiHost ++ "/v1/users/" ++ id ++ "/?callback=instagramApiCallback&access_token=" ++ token)
+    sendApiRequest apiHost token ("/v1/users/" ++ id ++ "/?")
 
 
-searchUser : String -> String -> String -> Task Http.Error String
+searchUser : String -> String -> String -> Task Http.RawError Http.Response
 searchUser apiHost token query =
-    Http.getString (apiHost ++ "/v1/users/search/?q=" ++ query ++ "&callback=instagramApiCallback&access_token=" ++ token)
+    sendApiRequest apiHost token ("/v1/users/search/?q=" ++ query)
 
 
 view data =

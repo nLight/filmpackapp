@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Filmpack App</title>
+  <title>Packfilm App</title>
   <script type="text/javascript" src="elm.js"></script>
 </head>
 
@@ -15,10 +15,11 @@ var app = Elm.App.fullscreen({
   apiHost: "https://api.instagram.com/v1"
 });
 
-function apiCallback(json) {
+function instagramApiCallback(json) {
   console.log('apiCallback', json);
   app.ports.api.send(json);
 }
+
 </script>
 
 </html>
