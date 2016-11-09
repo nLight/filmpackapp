@@ -11,12 +11,13 @@
 </body>
 
 <script type="text/javascript">
-function instagramApiCallback(json) {
-  console.log(json);
-}
-Elm.App.fullscreen({
+var app = Elm.App.fullscreen({
   apiHost: "https://api.instagram.com/v1"
 });
+
+function apiCallback(json) {
+  app.ports.api.send(json);
+}
 </script>
 
 </html>

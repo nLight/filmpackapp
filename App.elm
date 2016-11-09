@@ -1,4 +1,4 @@
-module App exposing (..)
+port module App exposing (..)
 
 import Html.App
 import Main
@@ -21,5 +21,13 @@ main =
         { init = init
         , view = Main.view
         , update = Main.update
-        , subscriptions = (always Sub.none)
+        , subscriptions = subscriptions
         }
+
+-- SUBSCRIPTIONS
+
+port api : (String -> msg) -> Sub msg
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+  suggestions Suggest
