@@ -24,6 +24,26 @@ type Msg
     | ApiResult String
 
 
+type alias Flags =
+    { apiHost : String
+    }
+
+
+init : Flags -> ( Model, Cmd Msg )
+init flags =
+    ( { apiHost = flags.apiHost
+      , user = Maybe.Nothing
+      , recent = []
+      , token = getToken
+      , messages = []
+      }
+    , Cmd.batch
+        [ (getUser flags.apiHost getToken) |> Task.perform ApiError GetUserSuccess
+        , (getMedia flags.apiHost getToken) |> Task.perform ApiError GetMediaSuccess
+        ]
+    )
+
+
 getUser apiHost token =
     case token of
         Just token ->
