@@ -1,16 +1,18 @@
 module Main exposing (..)
 
-import Html exposing (Html, a, div, text, img, h1)
-import Html.Attributes exposing (href, src)
+import Html exposing (Html, a, div, nav, text, img, h1)
+import Html.Attributes exposing (href, src, class)
 import Maybe
 import Task
 import Token
 import User exposing (User)
+import Media exposing (Media)
 
 
 type alias Model =
     { apiHost : String
     , user : Maybe User
+    , recent : List (Media.Media)
     , token : Token.Token
     , messages : List String
     }
@@ -20,7 +22,8 @@ type Msg
     = SuccessToken (Maybe String)
     | ErrorToken String
     | ApiError String
-    | ApiSuccess (Maybe User.User)
+    | GetUserSuccess (Maybe User.User)
+    | GetMediaSuccess (Maybe Media.ApiResult)
     | ApiResult String
 
 
@@ -53,13 +56,17 @@ getUser apiHost token =
             Task.fail "No token"
 
 
+getMedia apiHost token =
+    case token of
+        Just token ->
+            Task.toMaybe (Media.getMediaSelf apiHost token)
+
+        Nothing ->
+            Task.fail "No token"
+
+
 getToken =
     Token.getToken
-
-
-type alias Flags =
-    { apiHost : String
-    }
 
 
 update msg model =
@@ -70,8 +77,11 @@ update msg model =
         ErrorToken message ->
             ( model, Cmd.none )
 
-        ApiSuccess (Just user) ->
+        GetUserSuccess (Just user) ->
             ( { model | user = Just user }, Cmd.none )
+
+        GetMediaSuccess (Just data) ->
+            ( { model | recent = data.data }, Cmd.none )
 
         _ ->
             ( model, Cmd.none )
@@ -80,22 +90,35 @@ update msg model =
 login_button token =
     case token of
         Just token ->
-            div [] [ text token ]
+            div [] []
 
         Nothing ->
-            a [ href "https://api.instagram.com/oauth/authorize/?client_id=a59977aae66341598cb366c081e0b62d&redirect_uri=http://packfilmapp.com&response_type=token" ] [ text "Login" ]
+            a
+                [ class "btn btn-outline-primary"
+                , href "https://api.instagram.com/oauth/authorize/?client_id=a59977aae66341598cb366c081e0b62d&redirect_uri=http://packfilmapp.com&response_type=token"
+                ]
+                [ text "Login" ]
 
 
 stream data =
     div []
         [ User.view data.user
-          -- , div [] (List.map media data.feed)
+        , div [] (List.map Media.view data.recent)
         ]
+
+
+messages model =
+    List.map (\message -> div [ class "alert alert-danger" ] [ text message ]) model.messages
 
 
 view model =
     div []
-        [ h1 [] [ text "Packfilm" ]
-        , div [] [ stream model ]
-        , div [] (List.map text model.messages)
+        [ nav [ class "navbar navbar-full navbar-light bg-faded navbar-static-top" ]
+            [ a [ class "navbar-brand" ] [ text "Packfilm" ]
+            ]
+        , div [ class "container-fluid" ]
+            [ div [] (messages model)
+            , div [] [ stream model ]
+            , div [] [ login_button model.token ]
+            ]
         ]

@@ -1,7 +1,7 @@
 module User exposing (..)
 
 import Html exposing (Html, a, div, text, img)
-import Html.Attributes exposing (href, src)
+import Html.Attributes exposing (href, src, class)
 import Http
 import Json.Decode as Decode exposing (Decoder, (:=), at)
 import Jsonp
@@ -66,11 +66,11 @@ view data =
         Maybe.Just user ->
             div []
                 [ div [] [ text user.username ]
-                , img [ src user.profile_picture ] []
+                , img [ class "rounded-circle", src user.profile_picture ] []
                 ]
 
         Maybe.Nothing ->
-            div [] [ text "No user data" ]
+            div [] []
 
 
 stub =
