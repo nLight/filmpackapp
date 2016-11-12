@@ -3,7 +3,6 @@ module App exposing (..)
 import Html.App
 import Main
 import Task
-import User
 
 
 init : Main.Flags -> ( Main.Model, Cmd Main.Msg )
@@ -22,10 +21,5 @@ main =
         { init = init
         , view = Main.view
         , update = Main.update
-        , subscriptions = subscriptions
+        , subscriptions = (always Sub.none)
         }
-
-
-subscriptions : Main.Model -> Sub Main.Msg
-subscriptions model =
-    User.api Main.ApiResult

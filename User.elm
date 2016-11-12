@@ -1,13 +1,19 @@
-port module User exposing (..)
+module User exposing (..)
 
-import Html exposing (Html, div, text, img)
-import Html.Attributes exposing (src)
+import Html exposing (Html, a, div, text, img)
+import Html.Attributes exposing (href, src)
 import Http
-import Json.Decode as Decode exposing (Decoder, (:=))
-import Task exposing (..)
+import Json.Decode as Decode exposing (Decoder, (:=), at)
+import Jsonp
+import Task exposing (Task)
 
 
-type alias Model =
+type alias Result a =
+    { data : a
+    }
+
+
+type alias User =
     { username : String
     , bio : String
     , website : String
@@ -25,9 +31,6 @@ type alias UserCounts =
     }
 
 
-port api : (String -> msg) -> Sub msg
-
-
 countsDecoder : Decoder UserCounts
 countsDecoder =
     Decode.object3 UserCounts
@@ -36,41 +39,26 @@ countsDecoder =
         ("follows" := Decode.int)
 
 
-decoder : Decoder Model
-decoder =
-    Decode.object7 Model
-        ("username" := Decode.string)
-        ("bio" := Decode.string)
-        ("website" := Decode.string)
-        ("profile_picture" := Decode.string)
-        ("full_name" := Decode.string)
-        ("counts" := countsDecoder)
-        ("id" := Decode.string)
+user : Decoder User
+user =
+    Decode.object7 User
+        (at [ "data", "username" ] Decode.string)
+        (at [ "data", "bio" ] Decode.string)
+        (at [ "data", "website" ] Decode.string)
+        (at [ "data", "profile_picture" ] Decode.string)
+        (at [ "data", "full_name" ] Decode.string)
+        (at [ "data", "counts" ] countsDecoder)
+        (at [ "data", "id" ] Decode.string)
 
 
-sendApiRequest : String -> String -> String -> Task Http.RawError Http.Response
-sendApiRequest apiHost token url =
-    Http.send Http.defaultSettings
-        { verb = "GET"
-        , headers = [ ( "Accept", "*/*" ) ]
-        , url = (apiHost ++ url ++ "&access_token=" ++ token ++ "&callback=instagramApiCallback")
-        , body = Http.empty
-        }
-
-
-getUserSelf : String -> String -> Task Http.RawError Http.Response
+getUserSelf : String -> String -> Task Http.Error User
 getUserSelf apiHost token =
-    sendApiRequest apiHost token "/users/self/?"
+    Jsonp.get user (apiHost ++ "/users/self/?access_token=" ++ token)
 
 
-getUser : String -> String -> String -> Task Http.RawError Http.Response
+getUser : String -> String -> String -> Task Http.Error User
 getUser apiHost token id =
-    sendApiRequest apiHost token ("/v1/users/" ++ id ++ "/?")
-
-
-searchUser : String -> String -> String -> Task Http.RawError Http.Response
-searchUser apiHost token query =
-    sendApiRequest apiHost token ("/v1/users/search/?q=" ++ query)
+    Jsonp.get user (apiHost ++ "/v1/users/" ++ id ++ "/?access_token=" ++ token)
 
 
 view data =

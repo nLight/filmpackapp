@@ -2,16 +2,15 @@ module Main exposing (..)
 
 import Html exposing (Html, a, div, text, img, h1)
 import Html.Attributes exposing (href, src)
-import Http
 import Maybe
 import Task
 import Token
-import User
+import User exposing (User)
 
 
 type alias Model =
     { apiHost : String
-    , user : Maybe User.Model
+    , user : Maybe User
     , token : Token.Token
     , messages : List String
     }
@@ -21,7 +20,7 @@ type Msg
     = SuccessToken (Maybe String)
     | ErrorToken String
     | ApiError String
-    | ApiSuccess (Maybe Http.Response)
+    | ApiSuccess (Maybe User.User)
     | ApiResult String
 
 
@@ -51,6 +50,9 @@ update msg model =
         ErrorToken message ->
             ( model, Cmd.none )
 
+        ApiSuccess (Just user) ->
+            ( { model | user = Just user }, Cmd.none )
+
         _ ->
             ( model, Cmd.none )
 
@@ -75,6 +77,5 @@ view model =
     div []
         [ h1 [] [ text "Packfilm" ]
         , div [] [ stream model ]
-        , div [] [ login_button model.token ]
         , div [] (List.map text model.messages)
         ]
