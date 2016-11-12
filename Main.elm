@@ -5,6 +5,7 @@ import Html.Attributes exposing (href, src, class)
 import Maybe
 import Task
 import Token
+import Http
 import User exposing (User)
 import Media exposing (Media)
 
@@ -21,9 +22,9 @@ type alias Model =
 type Msg
     = SuccessToken (Maybe String)
     | ErrorToken String
-    | ApiError String
-    | GetUserSuccess (Maybe User.User)
-    | GetMediaSuccess (Maybe Media.ApiResult)
+    | ApiError Http.Error
+    | GetUserSuccess User.User
+    | GetMediaSuccess Media.ApiResult
     | ApiResult String
 
 
@@ -41,8 +42,8 @@ init flags =
       , messages = []
       }
     , Cmd.batch
-        [ (getUser flags.apiHost getToken) |> Task.perform ApiError GetUserSuccess
-        , (getMedia flags.apiHost getToken) |> Task.perform ApiError GetMediaSuccess
+        [ (getMedia flags.apiHost getToken) |> Task.perform ApiError GetMediaSuccess
+        , (getUser flags.apiHost getToken) |> Task.perform ApiError GetUserSuccess
         ]
     )
 
@@ -50,19 +51,19 @@ init flags =
 getUser apiHost token =
     case token of
         Just token ->
-            Task.toMaybe (User.getUserSelf apiHost token)
+            User.getUserSelf apiHost token
 
         Nothing ->
-            Task.fail "No token"
+            Task.fail (Http.UnexpectedPayload "No token")
 
 
 getMedia apiHost token =
     case token of
         Just token ->
-            Task.toMaybe (Media.getMediaSelf apiHost token)
+            Media.getMediaSelf apiHost token
 
         Nothing ->
-            Task.fail "No token"
+            Task.fail (Http.UnexpectedPayload "No token")
 
 
 getToken =
@@ -77,10 +78,10 @@ update msg model =
         ErrorToken message ->
             ( model, Cmd.none )
 
-        GetUserSuccess (Just user) ->
+        GetUserSuccess user ->
             ( { model | user = Just user }, Cmd.none )
 
-        GetMediaSuccess (Just data) ->
+        GetMediaSuccess data ->
             ( { model | recent = data.data }, Cmd.none )
 
         _ ->
