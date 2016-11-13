@@ -2,7 +2,7 @@
     "name": "Filmpack app",
     "repository": "https://github.com/nLight/filmpackapp",
     "env": {
-        "ELM_COMPILE": "elm make App.elm User.elm --output elm.js"
+        "ELM_COMPILE": "elm make App.elm Main.elm User.elm Media.elm --output elm.js"
     },
     "buildpacks": [
         {
