@@ -16,6 +16,7 @@ import Random
 import Task exposing (Task)
 import Time
 
+
 {-| Send a GET request to the given URL. The specified `Decoder` will be
 used to parse the result.
 
@@ -34,6 +35,7 @@ get decoder url =
             `Task.andThen` jsonp url
             `Task.andThen` decode
 
+
 {-| Send an arbitrary JSONP request. You will have to map the error for this `Task`
 yourself, as JSONP failures cannot be captured. You will most likely be using
 `Jsonp.get`. The first argument is the URL. The second argument is the callback name.
@@ -48,7 +50,7 @@ randomCallbackName : Task x String
 randomCallbackName =
     let
         generator =
-            Random.int 100 Random.maxInt
+            Random.int 10 Random.maxInt
     in
         Time.now
             |> Task.map (round >> Random.initialSeed)

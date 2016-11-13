@@ -1,7 +1,8 @@
 var _user$project$Native_Jsonp = function() {
 
-  function jsonp(url, callbackName)
+  function jsonp(url)
   {
+    var callbackName = "callback_" + Math.ceil(Math.random() * 100000000);
     return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback) {
       window[callbackName] = function(content)
       {
