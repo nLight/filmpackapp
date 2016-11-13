@@ -1,4 +1,4 @@
-var _user$project$Native_Token = function() {
+var _nLight$packfilmapp$Native_Token = function() {
 
   function getToken() {
     var matching = window.location.hash.match(/access_token=(.+)/);
