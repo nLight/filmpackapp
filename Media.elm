@@ -41,9 +41,3 @@ view data =
         [ img [ style [ ( "width", "100%" ) ], class "card-img-top", src data.url ] []
         , div [ class "card-block" ] [ text data.id ]
         ]
-
-
-stub =
-    """
-
-    """
