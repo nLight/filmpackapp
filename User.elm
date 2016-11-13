@@ -1,4 +1,4 @@
-module User exposing (..)
+module User exposing (User, cardView, getUserSelf)
 
 import Html exposing (Html, a, div, text, img, h4, small, br)
 import Html.Attributes exposing (href, src, class, style)
