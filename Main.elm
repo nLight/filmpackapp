@@ -1,4 +1,4 @@
-module Main exposing (..)
+port module Main exposing (..)
 
 import Html exposing (Html, a, div, nav, text, img, h1)
 import Html.Attributes exposing (href, src, class)
@@ -11,6 +11,9 @@ import User exposing (User)
 import Media exposing (Media)
 
 
+port saveToken : String -> Cmd msg
+
+
 type alias Model =
     { apiHost : String
     , streams : Dict String Stream
@@ -19,15 +22,18 @@ type alias Model =
 
 
 type Msg
-    = SuccessToken String
-    | ApiError Http.Error
-    | GetUserSuccess String User.User
-    | GetMediaSuccess String Media.ApiResult
+    = ApiError Http.Error
     | GenericError String
+    | GetMediaSuccess String Media.ApiResult
+    | GetUserSuccess String User.User
+    | SilentError String
+    | SuccessStreams
+    | SuccessToken String
 
 
 type alias Flags =
     { apiHost : String
+    , streams : Maybe (List ( String, Stream ))
     }
 
 
@@ -39,12 +45,23 @@ type alias Stream =
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
-    ( { apiHost = flags.apiHost
-      , streams = Dict.empty
-      , messages = []
-      }
-    , (Task.fromMaybe "Token not found" Token.getToken |> Task.perform GenericError SuccessToken)
-    )
+    let
+        streams =
+            Dict.fromList (Maybe.withDefault [] flags.streams)
+
+        apiHost =
+            flags.apiHost
+    in
+        ( { apiHost = apiHost
+          , streams = streams
+          , messages = []
+          }
+        , Cmd.batch
+            (loadStreams apiHost streams
+                ++ [ (Task.fromMaybe "Token not found" Token.getToken |> Task.perform SilentError SuccessToken)
+                   ]
+            )
+        )
 
 
 update msg model =
@@ -52,7 +69,8 @@ update msg model =
         SuccessToken token ->
             ( { model | streams = (Dict.insert token emptyStream model.streams) }
             , Cmd.batch
-                [ (Media.getMediaSelf model.apiHost token) |> Task.perform ApiError (GetMediaSuccess token)
+                [ (saveToken token)
+                , (Media.getMediaSelf model.apiHost token) |> Task.perform ApiError (GetMediaSuccess token)
                 , (User.getUserSelf model.apiHost token) |> Task.perform ApiError (GetUserSuccess token)
                 ]
             )
@@ -76,6 +94,17 @@ update msg model =
 
         _ ->
             ( model, Cmd.none )
+
+
+loadStreams apiHost streams =
+    List.map
+        (\token ->
+            Cmd.batch
+                [ (Media.getMediaSelf apiHost token) |> Task.perform ApiError (GetMediaSuccess token)
+                , (User.getUserSelf apiHost token) |> Task.perform ApiError (GetUserSuccess token)
+                ]
+        )
+        (Dict.keys streams)
 
 
 updateStreamUser : User -> (Maybe Stream -> Maybe Stream)
@@ -109,7 +138,7 @@ login_button =
         [ class "btn btn-outline-primary"
         , href "https://api.instagram.com/oauth/authorize/?client_id=a59977aae66341598cb366c081e0b62d&redirect_uri=http://packfilmapp.com&response_type=token"
         ]
-        [ text "Login" ]
+        [ text "Add Stream" ]
 
 
 streams data =
