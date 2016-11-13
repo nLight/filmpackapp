@@ -9,7 +9,7 @@ import Task exposing (Task)
 
 
 type alias Media =
-    { standard_resolution : String
+    { url : String
     , id : String
     }
 
@@ -27,8 +27,8 @@ data =
 media : Decoder Media
 media =
     Decode.object2 Media
-        (at [ "data", "id" ] Decode.string)
-        (at [ "data", "images", "standard_resolution" ] Decode.string)
+        (at [ "images", "standard_resolution", "url" ] Decode.string)
+        (at [ "id" ] Decode.string)
 
 
 getMediaSelf : String -> String -> Task Http.Error ApiResult
@@ -38,7 +38,8 @@ getMediaSelf apiHost token =
 
 view data =
     div []
-        [ img [ src data.standard_resolution ] []
+        [ img [ src data.url ] []
+        , div [] [ text data.id ]
         ]
 
 
