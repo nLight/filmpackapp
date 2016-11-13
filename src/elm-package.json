@@ -1,11 +1,11 @@
 {
-    "version": "1.0.0",
-    "summary": "helpful summary of your project, less than 80 characters",
-    "repository": "https://github.com/user/project.git",
+    "version": "0.0.1",
+    "summary": "Packfilm app",
+    "repository": "https://github.com/nLight/packfilmapp.git",
     "license": "BSD3",
     "source-directories": [
         ".",
-        "vendor/elm-jsonp/src"
+        "./vendor/elm-jsonp/src"
     ],
     "exposed-modules": [],
     "native-modules": true,
