@@ -1,8 +1,8 @@
 {
-    "name": "Filmpack app",
-    "repository": "https://github.com/nLight/filmpackapp",
+    "name": "Packfilm app",
+    "repository": "https://github.com/nLight/packfilmapp",
     "env": {
-        "ELM_COMPILE": "elm make App.elm Main.elm User.elm Media.elm --output elm.js"
+        "ELM_COMPILE": "elm make ./src/App.elm --output ./static/elm.js"
     },
     "buildpacks": [
         {
