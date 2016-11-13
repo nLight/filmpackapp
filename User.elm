@@ -1,7 +1,7 @@
 module User exposing (..)
 
-import Html exposing (Html, a, div, text, img)
-import Html.Attributes exposing (href, src, class)
+import Html exposing (Html, a, div, text, img, h4, small, br)
+import Html.Attributes exposing (href, src, class, style)
 import Http
 import Json.Decode as Decode exposing (Decoder, (:=), at)
 import Jsonp
@@ -61,12 +61,34 @@ getUser apiHost token id =
     Jsonp.get user (apiHost ++ "/v1/users/" ++ id ++ "/?access_token=" ++ token)
 
 
-view data =
+countsView data =
+    div [ class "" ]
+        [ div [ class "row" ]
+            [ div [ class "col-xs-4" ]
+                [ div [] [ text (toString data.media) ]
+                , small [] [ text "posts" ]
+                ]
+            , div [ class "col-xs-4" ]
+                [ div [] [ text (toString data.followed_by) ]
+                , small [] [ text "followers" ]
+                ]
+            , div [ class "col-xs-4" ]
+                [ div [] [ text (toString data.follows) ]
+                , small [] [ text "follows" ]
+                ]
+            ]
+        ]
+
+
+cardView data =
     case data of
         Maybe.Just user ->
-            div []
-                [ div [] [ text user.username ]
-                , img [ class "rounded-circle", src user.profile_picture ] []
+            div [ class "media", style [ ( "margin", "30px 0" ) ] ]
+                [ a [ class "media-left" ] [ img [ style [ ( "width", "100px" ) ], class "rounded-circle", src user.profile_picture ] [] ]
+                , div [ class "media-body" ]
+                    [ h4 [ class "media-heading" ] [ text user.username ]
+                    , countsView user.counts
+                    ]
                 ]
 
         Maybe.Nothing ->

@@ -1,7 +1,7 @@
 module Media exposing (..)
 
 import Html exposing (Html, a, div, text, img)
-import Html.Attributes exposing (href, src, class)
+import Html.Attributes exposing (href, src, class, style)
 import Http
 import Json.Decode as Decode exposing (Decoder, (:=), at)
 import Jsonp
@@ -37,9 +37,9 @@ getMediaSelf apiHost token =
 
 
 view data =
-    div []
-        [ img [ src data.url ] []
-        , div [] [ text data.id ]
+    div [ class "card" ]
+        [ img [ style [ ( "width", "100%" ) ], class "card-img-top", src data.url ] []
+        , div [ class "card-block" ] [ text data.id ]
         ]
 
 

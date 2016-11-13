@@ -103,7 +103,7 @@ login_button token =
 
 stream data =
     div []
-        [ User.view data.user
+        [ User.cardView data.user
         , div [] (List.map Media.view data.recent)
         ]
 
@@ -118,8 +118,14 @@ view model =
             [ a [ class "navbar-brand" ] [ text "Packfilm" ]
             ]
         , div [ class "container-fluid" ]
-            [ div [] (messages model)
-            , div [] [ stream model ]
-            , div [] [ login_button model.token ]
+            [ div [ class "row" ]
+                [ div [ class "col-xs-12" ] (messages model)
+                ]
+            , div [ class "row" ]
+                [ div [ class "col-xs-4" ]
+                    [ div [] [ stream model ]
+                    , div [] [ login_button model.token ]
+                    ]
+                ]
             ]
         ]
