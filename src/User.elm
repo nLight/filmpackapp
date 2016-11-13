@@ -3,14 +3,10 @@ module User exposing (User, cardView, getUserSelf)
 import Html exposing (Html, a, div, text, img, h4, small, br)
 import Html.Attributes exposing (href, src, class, style)
 import Http
+import Instagram
 import Json.Decode as Decode exposing (Decoder, (:=), at)
 import Jsonp
 import Task exposing (Task)
-
-
-type alias Result a =
-    { data : a
-    }
 
 
 type alias User =
@@ -53,12 +49,12 @@ user =
 
 getUserSelf : String -> String -> Task Http.Error User
 getUserSelf apiHost token =
-    Jsonp.get user (apiHost ++ "/users/self/?access_token=" ++ token)
+    Instagram.get apiHost token user "/users/self"
 
 
 getUser : String -> String -> String -> Task Http.Error User
 getUser apiHost token id =
-    Jsonp.get user (apiHost ++ "/v1/users/" ++ id ++ "/?access_token=" ++ token)
+    Instagram.get apiHost token user ("/v1/users/" ++ id)
 
 
 countsView data =

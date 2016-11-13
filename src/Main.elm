@@ -1,14 +1,14 @@
 port module Main exposing (..)
 
+import Dict exposing (Dict)
 import Html exposing (Html, a, div, nav, text, img, h1)
 import Html.Attributes exposing (href, src, class)
+import Http
 import Maybe
+import Media exposing (Media)
 import Task
 import Token
-import Http
-import Dict exposing (Dict)
 import User exposing (User)
-import Media exposing (Media)
 
 
 port saveToken : String -> Cmd msg
@@ -24,7 +24,7 @@ type alias Model =
 type Msg
     = ApiError Http.Error
     | GenericError String
-    | GetMediaSuccess String Media.ApiResult
+    | GetMediaSuccess String (List Media)
     | GetUserSuccess String User.User
     | SilentError String
     | SuccessStreams
@@ -85,7 +85,7 @@ update msg model =
         GetMediaSuccess token recent ->
             let
                 streams' =
-                    Dict.update token (updateStreamRecent recent.data) model.streams
+                    Dict.update token (updateStreamRecent recent) model.streams
             in
                 ( { model | streams = streams' }, Cmd.none )
 

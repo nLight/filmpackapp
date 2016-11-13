@@ -3,8 +3,8 @@ module Media exposing (..)
 import Html exposing (Html, a, div, text, img)
 import Html.Attributes exposing (href, src, class, style)
 import Http
+import Instagram
 import Json.Decode as Decode exposing (Decoder, (:=), at)
-import Jsonp
 import Task exposing (Task)
 
 
@@ -14,26 +14,18 @@ type alias Media =
     }
 
 
-type alias ApiResult =
-    { data : List Media }
-
-
-data : Decoder ApiResult
-data =
-    Decode.object1 ApiResult
-        ("data" := Decode.list media)
-
-
-media : Decoder Media
+media : Decoder (List Media)
 media =
-    Decode.object2 Media
-        (at [ "images", "standard_resolution", "url" ] Decode.string)
-        (at [ "id" ] Decode.string)
+    Decode.list
+        (Decode.object2 Media
+            (at [ "images", "standard_resolution", "url" ] Decode.string)
+            (at [ "id" ] Decode.string)
+        )
 
 
-getMediaSelf : String -> String -> Task Http.Error ApiResult
+getMediaSelf : String -> String -> Task Http.Error (List Media)
 getMediaSelf apiHost token =
-    Jsonp.get data (apiHost ++ "/users/self/media/recent/?access_token=" ++ token)
+    Instagram.get apiHost token media "/users/self/media/recent"
 
 
 view data =
