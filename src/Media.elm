@@ -14,18 +14,21 @@ type alias Media =
     }
 
 
-media : Decoder (List Media)
-media =
-    Decode.list
-        (Decode.object2 Media
-            (at [ "images", "standard_resolution", "url" ] Decode.string)
-            (at [ "id" ] Decode.string)
-        )
+mediaDecoder : Decoder Media
+mediaDecoder =
+    Decode.object2 Media
+        (at [ "images", "standard_resolution", "url" ] Decode.string)
+        (at [ "id" ] Decode.string)
+
+
+mediaListDecoder : Decoder (List Media)
+mediaListDecoder =
+    at [ "data" ] (Decode.list mediaDecoder)
 
 
 getMediaSelf : String -> String -> Task Http.Error (List Media)
 getMediaSelf apiHost token =
-    Instagram.get apiHost token media "/users/self/media/recent"
+    Instagram.get apiHost token mediaListDecoder "/users/self/media/recent"
 
 
 view data =
