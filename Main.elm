@@ -6,26 +6,24 @@ import Maybe
 import Task
 import Token
 import Http
+import Dict exposing (Dict)
 import User exposing (User)
 import Media exposing (Media)
 
 
 type alias Model =
     { apiHost : String
-    , user : Maybe User
-    , recent : List (Media.Media)
-    , token : Token.Token
+    , streams : Dict String Stream
     , messages : List String
     }
 
 
 type Msg
-    = SuccessToken (Maybe String)
-    | ErrorToken String
+    = SuccessToken String
     | ApiError Http.Error
-    | GetUserSuccess User.User
-    | GetMediaSuccess Media.ApiResult
-    | ApiResult String
+    | GetUserSuccess String User.User
+    | GetMediaSuccess String Media.ApiResult
+    | GenericError String
 
 
 type alias Flags =
@@ -33,83 +31,104 @@ type alias Flags =
     }
 
 
+type alias Stream =
+    { user : Maybe User
+    , recent : List (Media.Media)
+    }
+
+
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     ( { apiHost = flags.apiHost
-      , user = Maybe.Nothing
-      , recent = []
-      , token = getToken
+      , streams = Dict.empty
       , messages = []
       }
-    , Cmd.batch
-        [ (getMedia flags.apiHost getToken) |> Task.perform ApiError GetMediaSuccess
-        , (getUser flags.apiHost getToken) |> Task.perform ApiError GetUserSuccess
-        ]
+    , (Task.fromMaybe "Token not found" Token.getToken |> Task.perform GenericError SuccessToken)
     )
-
-
-getUser apiHost token =
-    case token of
-        Just token ->
-            User.getUserSelf apiHost token
-
-        Nothing ->
-            Task.fail (Http.UnexpectedPayload "No token")
-
-
-getMedia apiHost token =
-    case token of
-        Just token ->
-            Media.getMediaSelf apiHost token
-
-        Nothing ->
-            Task.fail (Http.UnexpectedPayload "No token")
-
-
-getToken =
-    Token.getToken
 
 
 update msg model =
     case msg of
         SuccessToken token ->
-            ( { model | token = token }, Cmd.none )
+            ( { model | streams = (Dict.insert token emptyStream model.streams) }
+            , Cmd.batch
+                [ (Media.getMediaSelf model.apiHost token) |> Task.perform ApiError (GetMediaSuccess token)
+                , (User.getUserSelf model.apiHost token) |> Task.perform ApiError (GetUserSuccess token)
+                ]
+            )
 
-        ErrorToken message ->
-            ( model, Cmd.none )
+        GetUserSuccess token user ->
+            let
+                streams' =
+                    Dict.update token (updateStreamUser user) model.streams
+            in
+                ( { model | streams = streams' }, Cmd.none )
 
-        GetUserSuccess user ->
-            ( { model | user = Just user }, Cmd.none )
+        GetMediaSuccess token recent ->
+            let
+                streams' =
+                    Dict.update token (updateStreamRecent recent.data) model.streams
+            in
+                ( { model | streams = streams' }, Cmd.none )
 
-        GetMediaSuccess data ->
-            ( { model | recent = data.data }, Cmd.none )
+        GenericError error ->
+            ( { model | messages = [ error ] }, Cmd.none )
 
         _ ->
             ( model, Cmd.none )
 
 
-login_button token =
-    case token of
-        Just token ->
-            div [] []
+updateStreamUser : User -> (Maybe Stream -> Maybe Stream)
+updateStreamUser user stream =
+    case stream of
+        Just stream ->
+            Just { stream | user = Just user }
 
         Nothing ->
-            a
-                [ class "btn btn-outline-primary"
-                , href "https://api.instagram.com/oauth/authorize/?client_id=a59977aae66341598cb366c081e0b62d&redirect_uri=http://packfilmapp.com&response_type=token"
-                ]
-                [ text "Login" ]
+            Just { emptyStream | user = Just user }
+
+
+updateStreamRecent : List Media.Media -> (Maybe Stream -> Maybe Stream)
+updateStreamRecent media stream =
+    case stream of
+        Just stream ->
+            Just { stream | recent = media }
+
+        Nothing ->
+            Just { emptyStream | recent = media }
+
+
+emptyStream =
+    { user = Nothing
+    , recent = []
+    }
+
+
+login_button =
+    a
+        [ class "btn btn-outline-primary"
+        , href "https://api.instagram.com/oauth/authorize/?client_id=a59977aae66341598cb366c081e0b62d&redirect_uri=http://packfilmapp.com&response_type=token"
+        ]
+        [ text "Login" ]
+
+
+streams data =
+    (List.map stream (Dict.values data))
 
 
 stream data =
-    div []
-        [ User.cardView data.user
-        , div [] (List.map Media.view data.recent)
+    div [ class "col-xs-4" ]
+        [ div []
+            [ div []
+                [ User.cardView data.user
+                , div [] (List.map Media.view data.recent)
+                ]
+            ]
         ]
 
 
-messages model =
-    List.map (\message -> div [ class "alert alert-danger" ] [ text message ]) model.messages
+messages data =
+    List.map (\message -> div [ class "alert alert-danger" ] [ text message ]) data
 
 
 view model =
@@ -119,13 +138,9 @@ view model =
             ]
         , div [ class "container-fluid" ]
             [ div [ class "row" ]
-                [ div [ class "col-xs-12" ] (messages model)
+                [ div [ class "col-xs-12" ] (messages model.messages)
                 ]
             , div [ class "row" ]
-                [ div [ class "col-xs-4" ]
-                    [ div [] [ stream model ]
-                    , div [] [ login_button model.token ]
-                    ]
-                ]
+                ((streams model.streams) ++ [ div [] [ login_button ] ])
             ]
         ]
