@@ -74,7 +74,7 @@ update msg model =
                 [ (saveToken token)
                 , (loadFeed model.apiHost token) |> Task.perform ApiError (GetFeedSuccess token)
                 , (User.getUserSelf model.apiHost token) |> Task.perform ApiError (GetUserSuccess token)
-                -- , (Media.getSelf model.apiHost token) |> Task.perform ApiError (GetMediaSuccess token)
+                  -- , (Media.getSelf model.apiHost token) |> Task.perform ApiError (GetMediaSuccess token)
                 ]
             )
 
@@ -104,18 +104,18 @@ loadStreams apiHost streams =
             Cmd.batch
                 [ (loadFeed apiHost token) |> Task.perform ApiError (GetFeedSuccess token)
                 , (User.getUserSelf apiHost token) |> Task.perform ApiError (GetUserSuccess token)
-                -- (Media.getSelf apiHost token) |> Task.perform ApiError (GetMediaSuccess token)
+                  -- (Media.getSelf apiHost token) |> Task.perform ApiError (GetMediaSuccess token)
                 ]
         )
         (Dict.keys streams)
 
 
 updateStream model token update =
-  let
-      streams' =
-          Dict.update token update model.streams
-  in
-      ( { model | streams = streams' }, Cmd.none )
+    let
+        streams' =
+            Dict.update token update model.streams
+    in
+        ( { model | streams = streams' }, Cmd.none )
 
 
 updateStreamUser : User -> (Maybe Stream -> Maybe Stream)
