@@ -16,10 +16,10 @@ type alias Friend =
 
 friendDecoder =
     Decode.object4 Friend
-        (at [ "data", "username" ] Decode.string)
-        (at [ "data", "profile_picture" ] Decode.string)
-        (at [ "data", "full_name" ] Decode.string)
-        (at [ "data", "id" ] Decode.string)
+        ("username" := Decode.string)
+        ("profile_picture" := Decode.string)
+        ("full_name" := Decode.string)
+        ("id" := Decode.string)
 
 
 friendsListDecoder : Decoder (List Friend)
