@@ -9,6 +9,7 @@ import Media exposing (Media)
 import Task
 import Token
 import User exposing (User)
+import Users
 
 
 port saveToken : String -> Cmd msg
@@ -24,6 +25,7 @@ type alias Model =
 type Msg
     = ApiError Http.Error
     | GenericError String
+    | GetFeedSuccess String (List (List Media))
     | GetMediaSuccess String (List Media)
     | GetUserSuccess String User.User
     | SilentError String
@@ -70,10 +72,14 @@ update msg model =
             ( { model | streams = (Dict.insert token emptyStream model.streams) }
             , Cmd.batch
                 [ (saveToken token)
-                , (Media.getMediaSelf model.apiHost token) |> Task.perform ApiError (GetMediaSuccess token)
+                , (loadFeed model.apiHost token) |> Task.perform ApiError (GetFeedSuccess token)
                 , (User.getUserSelf model.apiHost token) |> Task.perform ApiError (GetUserSuccess token)
+                -- , (Media.getMediaSelf model.apiHost token) |> Task.perform ApiError (GetMediaSuccess token)
                 ]
             )
+
+        GetFeedSuccess token list ->
+            ( model, Cmd.none )
 
         GetUserSuccess token user ->
             updateStream model token (updateStreamUser user)
@@ -86,6 +92,10 @@ update msg model =
 
         _ ->
             ( model, Cmd.none )
+
+
+loadFeed apiHost token =
+    (Users.getFriends apiHost token) `Task.andThen` (\friends -> (Task.sequence (List.map (\user -> Media.get apiHost token user.id) friends)))
 
 
 loadStreams apiHost streams =
