@@ -76,18 +76,10 @@ update msg model =
             )
 
         GetUserSuccess token user ->
-            let
-                streams' =
-                    Dict.update token (updateStreamUser user) model.streams
-            in
-                ( { model | streams = streams' }, Cmd.none )
+            updateStream model token (updateStreamUser user)
 
         GetMediaSuccess token recent ->
-            let
-                streams' =
-                    Dict.update token (updateStreamRecent recent) model.streams
-            in
-                ( { model | streams = streams' }, Cmd.none )
+            updateStream model token (updateStreamRecent recent)
 
         GenericError error ->
             ( { model | messages = [ error ] }, Cmd.none )
@@ -105,6 +97,14 @@ loadStreams apiHost streams =
                 ]
         )
         (Dict.keys streams)
+
+
+updateStream model token update =
+  let
+      streams' =
+          Dict.update token update model.streams
+  in
+      ( { model | streams = streams' }, Cmd.none )
 
 
 updateStreamUser : User -> (Maybe Stream -> Maybe Stream)
