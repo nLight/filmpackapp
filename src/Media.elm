@@ -31,6 +31,11 @@ getMediaSelf apiHost token =
     Instagram.get apiHost token mediaListDecoder "/users/self/media/recent"
 
 
+get : String -> String -> String -> Task Http.Error (List Media)
+get apiHost token id =
+    Instagram.get apiHost token mediaListDecoder ("/users/" ++ id ++ "/media/recent")
+
+
 view data =
     div [ class "card" ]
         [ img [ style [ ( "width", "100%" ) ], class "card-img-top", src data.url ] []
