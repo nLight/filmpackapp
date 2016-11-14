@@ -74,7 +74,7 @@ update msg model =
                 [ (saveToken token)
                 , (loadFeed model.apiHost token) |> Task.perform ApiError (GetFeedSuccess token)
                 , (User.getUserSelf model.apiHost token) |> Task.perform ApiError (GetUserSuccess token)
-                -- , (Media.getMediaSelf model.apiHost token) |> Task.perform ApiError (GetMediaSuccess token)
+                -- , (Media.getSelf model.apiHost token) |> Task.perform ApiError (GetMediaSuccess token)
                 ]
             )
 
@@ -102,7 +102,7 @@ loadStreams apiHost streams =
     List.map
         (\token ->
             Cmd.batch
-                [ (Media.getMediaSelf apiHost token) |> Task.perform ApiError (GetMediaSuccess token)
+                [ (Media.getSelf apiHost token) |> Task.perform ApiError (GetMediaSuccess token)
                 , (User.getUserSelf apiHost token) |> Task.perform ApiError (GetUserSuccess token)
                 ]
         )

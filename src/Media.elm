@@ -26,8 +26,8 @@ mediaListDecoder =
     at [ "data" ] (Decode.list mediaDecoder)
 
 
-getMediaSelf : String -> String -> Task Http.Error (List Media)
-getMediaSelf apiHost token =
+getSelf : String -> String -> Task Http.Error (List Media)
+getSelf apiHost token =
     Instagram.get apiHost token mediaListDecoder "/users/self/media/recent"
 
 
