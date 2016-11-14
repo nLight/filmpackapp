@@ -5,7 +5,9 @@ import Main
 
 
 devFlags =
-    { apiHost = "https://api.instagram.com/v1" }
+    { apiHost = "https://api.instagram.com/v1"
+    , streams = Nothing
+    }
 
 
 main =
