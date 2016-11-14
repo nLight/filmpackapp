@@ -102,8 +102,9 @@ loadStreams apiHost streams =
     List.map
         (\token ->
             Cmd.batch
-                [ (Media.getSelf apiHost token) |> Task.perform ApiError (GetMediaSuccess token)
+                [ (loadFeed apiHost token) |> Task.perform ApiError (GetFeedSuccess token)
                 , (User.getUserSelf apiHost token) |> Task.perform ApiError (GetUserSuccess token)
+                -- (Media.getSelf apiHost token) |> Task.perform ApiError (GetMediaSuccess token)
                 ]
         )
         (Dict.keys streams)
