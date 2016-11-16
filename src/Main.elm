@@ -53,15 +53,30 @@ init flags =
         apiHost =
             flags.apiHost
 
-        getToken =
-            (Result.fromMaybe "Token not found" Token.getToken)
+        getTokenTask =
+            case Token.getToken of
+                Just token ->
+                    Task.succeed token
+
+                Nothing ->
+                    Task.fail ":("
+
+        mapToken result =
+            case result of
+                Ok token ->
+                    SuccessToken token
+
+                Err message ->
+                    SilentError message
     in
         ( { apiHost = apiHost
           , streams = streams
           , messages = []
           }
         , Cmd.batch
-            (loadStreams apiHost streams)
+            ([ Task.attempt mapToken getTokenTask ]
+                ++ (loadStreams apiHost streams)
+            )
         )
 
 
