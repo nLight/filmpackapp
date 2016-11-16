@@ -1,11 +1,11 @@
 module App exposing (..)
 
-import Html.App
+import Html
 import Main
 
 
 main =
-    Html.App.programWithFlags
+    Html.programWithFlags
         { init = Main.init
         , view = Main.view
         , update = Main.update

@@ -1,7 +1,7 @@
 module AppDev exposing (..)
 
-import Html.App
 import Main
+import Html
 
 
 devFlags =
@@ -11,7 +11,7 @@ devFlags =
 
 
 main =
-    Html.App.program
+    Html.program
         { init = Main.init devFlags
         , view = Main.view
         , update = Main.update

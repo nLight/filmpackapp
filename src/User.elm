@@ -2,10 +2,8 @@ module User exposing (User, cardView, getUserSelf)
 
 import Html exposing (Html, a, div, text, img, h4, small, br)
 import Html.Attributes exposing (href, src, class, style)
-import Http
 import Instagram
-import Json.Decode as Decode exposing (Decoder, (:=), at)
-import Jsonp
+import Json.Decode as Decode exposing (Decoder, at)
 import Task exposing (Task)
 
 
@@ -29,15 +27,15 @@ type alias UserCounts =
 
 countsDecoder : Decoder UserCounts
 countsDecoder =
-    Decode.object3 UserCounts
-        ("media" := Decode.int)
-        ("followed_by" := Decode.int)
-        ("follows" := Decode.int)
+    Decode.map3 UserCounts
+        (at [ "media" ] Decode.int)
+        (at [ "followed_by" ] Decode.int)
+        (at [ "follows" ] Decode.int)
 
 
 user : Decoder User
 user =
-    Decode.object7 User
+    Decode.map7 User
         (at [ "data", "username" ] Decode.string)
         (at [ "data", "bio" ] Decode.string)
         (at [ "data", "website" ] Decode.string)
@@ -47,12 +45,12 @@ user =
         (at [ "data", "id" ] Decode.string)
 
 
-getUserSelf : String -> String -> Task Http.Error User
+getUserSelf : String -> String -> Task Instagram.Error User
 getUserSelf apiHost token =
     Instagram.get apiHost token user "/users/self"
 
 
-getUser : String -> String -> String -> Task Http.Error User
+getUser : String -> String -> String -> Task Instagram.Error User
 getUser apiHost token id =
     Instagram.get apiHost token user ("/v1/users/" ++ id)
 

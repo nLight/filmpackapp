@@ -2,9 +2,8 @@ module Media exposing (..)
 
 import Html exposing (Html, a, div, text, img)
 import Html.Attributes exposing (href, src, class, style)
-import Http
 import Instagram
-import Json.Decode as Decode exposing (Decoder, (:=), at)
+import Json.Decode as Decode exposing (Decoder, at)
 import Task exposing (Task)
 
 
@@ -16,7 +15,7 @@ type alias Media =
 
 mediaDecoder : Decoder Media
 mediaDecoder =
-    Decode.object2 Media
+    Decode.map2 Media
         (at [ "images", "standard_resolution", "url" ] Decode.string)
         (at [ "id" ] Decode.string)
 
@@ -26,12 +25,12 @@ mediaListDecoder =
     at [ "data" ] (Decode.list mediaDecoder)
 
 
-getSelf : String -> String -> Task Http.Error (List Media)
+getSelf : String -> String -> Task String (List Media)
 getSelf apiHost token =
     Instagram.get apiHost token mediaListDecoder "/users/self/media/recent"
 
 
-get : String -> String -> String -> Task Http.Error (List Media)
+get : String -> String -> String -> Task String (List Media)
 get apiHost token id =
     Instagram.get apiHost token mediaListDecoder ("/users/" ++ id ++ "/media/recent")
 

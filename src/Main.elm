@@ -3,7 +3,6 @@ port module Main exposing (..)
 import Dict exposing (Dict)
 import Html exposing (Html, a, div, nav, text, img, h1)
 import Html.Attributes exposing (href, src, class)
-import Http
 import Maybe
 import Media exposing (Media)
 import Task
@@ -23,7 +22,7 @@ type alias Model =
 
 
 type Msg
-    = ApiError Http.Error
+    = ApiError String
     | GenericError String
     | GetFeedSuccess String (List (List Media))
     | GetMediaSuccess String (List Media)
@@ -41,7 +40,7 @@ type alias Flags =
 
 type alias Stream =
     { user : Maybe User
-    , recent : List (Media.Media)
+    , recent : List Media.Media
     }
 
 
@@ -53,30 +52,47 @@ init flags =
 
         apiHost =
             flags.apiHost
+
+        getToken =
+            (Result.fromMaybe "Token not found" Token.getToken)
     in
         ( { apiHost = apiHost
           , streams = streams
           , messages = []
           }
         , Cmd.batch
-            (loadStreams apiHost streams
-                ++ [ (Task.fromMaybe "Token not found" Token.getToken |> Task.perform SilentError SuccessToken)
-                   ]
-            )
+            (loadStreams apiHost streams)
         )
 
 
 update msg model =
     case msg of
         SuccessToken token ->
-            ( { model | streams = (Dict.insert token emptyStream model.streams) }
-            , Cmd.batch
-                [ (saveToken token)
-                , (loadFeed model.apiHost token) |> Task.perform ApiError (GetFeedSuccess token)
-                , (User.getUserSelf model.apiHost token) |> Task.perform ApiError (GetUserSuccess token)
-                  -- , (Media.getSelf model.apiHost token) |> Task.perform ApiError (GetMediaSuccess token)
-                ]
-            )
+            let
+                unpackUser result =
+                    case result of
+                        Ok user ->
+                            GetUserSuccess token user
+
+                        Err message ->
+                            ApiError message
+
+                unpackMedia result =
+                    case result of
+                        Ok media ->
+                            GetMediaSuccess token media
+
+                        Err message ->
+                            ApiError message
+            in
+                ( { model | streams = (Dict.insert token emptyStream model.streams) }
+                , Cmd.batch
+                    [ (saveToken token)
+                      -- , (loadFeed model.apiHost token) |> Task.attempt ApiError (GetFeedSuccess token)
+                    , (User.getUserSelf model.apiHost token) |> Task.attempt unpackUser
+                    , (Media.getSelf model.apiHost token) |> Task.attempt unpackMedia
+                    ]
+                )
 
         GetFeedSuccess token list ->
             ( model, Cmd.none )
@@ -95,27 +111,44 @@ update msg model =
 
 
 loadFeed apiHost token =
-    (Users.getFriends apiHost token) `Task.andThen` (\friends -> (Task.sequence (List.map (\user -> Media.get apiHost token user.id) friends)))
+    (Users.getFriends apiHost token) |> Task.andThen (\friends -> (Task.sequence (List.map (\user -> Media.get apiHost token user.id) friends)))
 
 
 loadStreams apiHost streams =
     List.map
         (\token ->
-            Cmd.batch
-                [ (loadFeed apiHost token) |> Task.perform ApiError (GetFeedSuccess token)
-                , (User.getUserSelf apiHost token) |> Task.perform ApiError (GetUserSuccess token)
-                  -- (Media.getSelf apiHost token) |> Task.perform ApiError (GetMediaSuccess token)
-                ]
+            let
+                unpackUser result =
+                    case result of
+                        Ok user ->
+                            GetUserSuccess token user
+
+                        Err message ->
+                            ApiError message
+
+                unpackMedia result =
+                    case result of
+                        Ok media ->
+                            GetMediaSuccess token media
+
+                        Err message ->
+                            ApiError message
+            in
+                Cmd.batch
+                    [ (Media.getSelf apiHost token) |> Task.attempt unpackMedia
+                    , (User.getUserSelf apiHost token) |> Task.attempt unpackUser
+                      -- (loadFeed apiHost token) |> Task.attempt ApiError (GetFeedSuccess token)
+                    ]
         )
         (Dict.keys streams)
 
 
 updateStream model token update =
     let
-        streams' =
+        streams_ =
             Dict.update token update model.streams
     in
-        ( { model | streams = streams' }, Cmd.none )
+        ( { model | streams = streams_ }, Cmd.none )
 
 
 updateStreamUser : User -> (Maybe Stream -> Maybe Stream)

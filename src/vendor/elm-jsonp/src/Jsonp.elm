@@ -9,7 +9,6 @@ module Jsonp exposing (jsonp, get)
 @docs jsonp
 -}
 
-import Http
 import Json.Decode as Json
 import Native.Jsonp
 import Random
@@ -19,21 +18,21 @@ import Time
 
 {-| Send a GET request to the given URL. The specified `Decoder` will be
 used to parse the result.
-
-See [`Http.get`](http://package.elm-lang.org/packages/evancz/elm-http/3.0.1/Http#get)
-for same usage.
 -}
-get : Json.Decoder value -> String -> Task Http.Error value
+get : Json.Decoder value -> String -> Task String value
 get decoder url =
     let
         decode s =
-            Json.decodeString decoder s
-                |> Task.fromResult
-                |> Task.mapError Http.UnexpectedPayload
+            case Json.decodeString decoder s of
+                Ok value ->
+                    Task.succeed value
+
+                Err message ->
+                    Task.fail message
     in
         randomCallbackName
-            `Task.andThen` jsonp url
-            `Task.andThen` decode
+            |> Task.andThen (jsonp url)
+            |> Task.andThen decode
 
 
 {-| Send an arbitrary JSONP request. You will have to map the error for this `Task`
@@ -54,5 +53,5 @@ randomCallbackName =
     in
         Time.now
             |> Task.map (round >> Random.initialSeed)
-            |> Task.map (Random.step generator >> fst)
+            |> Task.map (Random.step generator >> Tuple.first)
             |> Task.map (toString >> (++) "callback")
