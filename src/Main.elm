@@ -133,6 +133,14 @@ loadStreams apiHost streams =
 
                         Err message ->
                             ApiError message
+
+                unpackFeed result =
+                    case result of
+                        Ok media ->
+                            GetFeedSuccess token media
+
+                        Err message ->
+                            ApiError message
             in
                 Cmd.batch
                     [ (Media.getSelf apiHost token) |> Task.attempt unpackMedia
@@ -180,7 +188,7 @@ emptyStream =
 login_button =
     a
         [ class "btn btn-outline-primary"
-        , href "https://api.instagram.com/oauth/authorize/?client_id=a59977aae66341598cb366c081e0b62d&redirect_uri=http://packfilmapp.com&response_type=token"
+        , href "https://api.instagram.com/oauth/authorize/?scope=public_content+follower_list+comments+relationships+likes&client_id=a59977aae66341598cb366c081e0b62d&redirect_uri=http://packfilmapp.com&response_type=token"
         ]
         [ text "Add Stream" ]
 
