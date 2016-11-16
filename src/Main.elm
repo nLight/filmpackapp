@@ -143,8 +143,8 @@ loadStreams apiHost streams =
     List.map
         (\token ->
             Cmd.batch
-                [ ((User.getUserSelf apiHost token) |> Task.attempt (mapUserResult token))
-                , ((loadFeed apiHost token) |> Task.attempt (mapFeedResult token))
+                [ (User.getUserSelf apiHost token) |> Task.attempt (mapUserResult token)
+                , (loadFeed apiHost token) |> Task.attempt (mapFeedResult token)
                   -- , (Media.getSelf apiHost token) |> Task.attempt (mapMediaResult token)
                 ]
         )
