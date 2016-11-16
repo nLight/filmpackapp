@@ -80,34 +80,44 @@ init flags =
         )
 
 
+mapUserResult token result =
+    case result of
+        Ok user ->
+            GetUserSuccess token user
+
+        Err message ->
+            ApiError message
+
+
+mapMediaResult token result =
+    case result of
+        Ok media ->
+            GetMediaSuccess token media
+
+        Err message ->
+            ApiError message
+
+
+mapFeedResult token result =
+    case result of
+        Ok media ->
+            GetFeedSuccess token media
+
+        Err message ->
+            ApiError message
+
+
 update msg model =
     case msg of
         SuccessToken token ->
-            let
-                unpackUser result =
-                    case result of
-                        Ok user ->
-                            GetUserSuccess token user
-
-                        Err message ->
-                            ApiError message
-
-                unpackMedia result =
-                    case result of
-                        Ok media ->
-                            GetMediaSuccess token media
-
-                        Err message ->
-                            ApiError message
-            in
-                ( { model | streams = (Dict.insert token emptyStream model.streams) }
-                , Cmd.batch
-                    [ (saveToken token)
-                      -- , (loadFeed model.apiHost token) |> Task.attempt ApiError (GetFeedSuccess token)
-                    , (User.getUserSelf model.apiHost token) |> Task.attempt unpackUser
-                    , (Media.getSelf model.apiHost token) |> Task.attempt unpackMedia
-                    ]
-                )
+            ( { model | streams = (Dict.insert token emptyStream model.streams) }
+            , Cmd.batch
+                [ (saveToken token)
+                , (loadFeed model.apiHost token) |> Task.attempt (mapFeedResult token)
+                , (User.getUserSelf model.apiHost token) |> Task.attempt (mapUserResult token)
+                  -- , (Media.getSelf model.apiHost token) |> Task.attempt (mapMediaResult token)
+                ]
+            )
 
         GetFeedSuccess token list ->
             ( model, Cmd.none )
@@ -132,36 +142,11 @@ loadFeed apiHost token =
 loadStreams apiHost streams =
     List.map
         (\token ->
-            let
-                unpackUser result =
-                    case result of
-                        Ok user ->
-                            GetUserSuccess token user
-
-                        Err message ->
-                            ApiError message
-
-                unpackMedia result =
-                    case result of
-                        Ok media ->
-                            GetMediaSuccess token media
-
-                        Err message ->
-                            ApiError message
-
-                unpackFeed result =
-                    case result of
-                        Ok media ->
-                            GetFeedSuccess token media
-
-                        Err message ->
-                            ApiError message
-            in
-                Cmd.batch
-                    [ ((User.getUserSelf apiHost token) |> Task.attempt unpackUser)
-                    , ((loadFeed apiHost token) |> Task.attempt unpackFeed)
-                      -- , (Media.getSelf apiHost token) |> Task.attempt unpackMedia
-                    ]
+            Cmd.batch
+                [ ((User.getUserSelf apiHost token) |> Task.attempt (mapUserResult token))
+                , ((loadFeed apiHost token) |> Task.attempt (mapFeedResult token))
+                  -- , (Media.getSelf apiHost token) |> Task.attempt (mapMediaResult token)
+                ]
         )
         (Dict.keys streams)
 
