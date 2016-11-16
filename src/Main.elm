@@ -143,9 +143,9 @@ loadStreams apiHost streams =
                             ApiError message
             in
                 Cmd.batch
-                    [ (Media.getSelf apiHost token) |> Task.attempt unpackMedia
-                    , (User.getUserSelf apiHost token) |> Task.attempt unpackUser
-                      -- (loadFeed apiHost token) |> Task.attempt ApiError (GetFeedSuccess token)
+                    [ ((User.getUserSelf apiHost token) |> Task.attempt unpackUser)
+                    , ((loadFeed apiHost token) |> Task.attempt unpackFeed)
+                      -- , (Media.getSelf apiHost token) |> Task.attempt unpackMedia
                     ]
         )
         (Dict.keys streams)
