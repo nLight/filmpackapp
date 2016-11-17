@@ -9,14 +9,16 @@ import Task exposing (Task)
 
 type alias Media =
     { url : String
+    , created_time : String
     , id : String
     }
 
 
 mediaDecoder : Decoder Media
 mediaDecoder =
-    Decode.map2 Media
+    Decode.map3 Media
         (at [ "images", "standard_resolution", "url" ] Decode.string)
+        (at [ "created_time" ] Decode.string)
         (at [ "id" ] Decode.string)
 
 

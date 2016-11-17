@@ -96,13 +96,13 @@ update msg model =
                 )
 
         GetFeedSuccess token list ->
-            ( model, Cmd.none )
+            ( updateStream model token (updateStreamFeed list), Cmd.none )
 
         GetUserSuccess token user ->
-            updateStream model token (updateStreamUser user)
+            ( updateStream model token (updateStreamUser user), Cmd.none )
 
         GetMediaSuccess token recent ->
-            updateStream model token (updateStreamRecent recent)
+            ( updateStream model token (updateStreamRecent recent), Cmd.none )
 
         GenericError error ->
             ( { model | messages = [ error ] }, Cmd.none )
@@ -172,10 +172,10 @@ loadStreams apiHost streams =
 
 updateStream model token update =
     let
-        streams_ =
+        streams =
             Dict.update token update model.streams
     in
-        ( { model | streams = streams_ }, Cmd.none )
+        { model | streams = streams }
 
 
 updateStreamUser : User -> (Maybe Stream -> Maybe Stream)
@@ -196,6 +196,31 @@ updateStreamRecent media stream =
 
         Nothing ->
             Just { emptyStream | recent = media }
+
+
+updateStreamFeed : List (Maybe (List Media.Media)) -> (Maybe Stream -> Maybe Stream)
+updateStreamFeed list stream =
+    let
+        compareMedia a b =
+            case compare a.created_time b.created_time of
+                LT ->
+                    GT
+
+                EQ ->
+                    EQ
+
+                GT ->
+                    LT
+
+        filtered =
+            List.filterMap (\s -> s) list |> List.concat |> List.sortWith compareMedia
+    in
+        case stream of
+            Just stream ->
+                Just { stream | recent = filtered }
+
+            Nothing ->
+                Just { emptyStream | recent = filtered }
 
 
 emptyStream =
