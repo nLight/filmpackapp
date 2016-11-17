@@ -1,6 +1,6 @@
 module Users exposing (..)
 
-import Instagram exposing (Result)
+import Instagram exposing (ApiResponse)
 import Json.Decode as Decode exposing (Decoder, at)
 import Task exposing (Task)
 
@@ -13,6 +13,7 @@ type alias Friend =
     }
 
 
+friendDecoder : Decoder Friend
 friendDecoder =
     Decode.map4 Friend
         (at [ "username" ] Decode.string)
@@ -23,9 +24,9 @@ friendDecoder =
 
 friendsListDecoder : Decoder (List Friend)
 friendsListDecoder =
-    at [ "data" ] (Decode.list friendDecoder)
+    Decode.list friendDecoder
 
 
-getFriends : String -> String -> Task String (List Friend)
+getFriends : String -> String -> Task String (Maybe (List Friend))
 getFriends apiHost token =
     Instagram.get apiHost token friendsListDecoder "/users/self/follows"

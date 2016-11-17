@@ -24,7 +24,7 @@ type alias Model =
 type Msg
     = ApiError String
     | GenericError String
-    | GetFeedSuccess String (List (List Media))
+    | GetFeedSuccess String (List (Maybe (List Media)))
     | GetMediaSuccess String (List Media)
     | GetUserSuccess String User.User
     | SilentError String
@@ -80,10 +80,47 @@ init flags =
         )
 
 
+update msg model =
+    case msg of
+        SuccessToken token ->
+            let
+                streams =
+                    (Dict.insert token emptyStream model.streams)
+            in
+                ( { model | streams = streams }
+                , Cmd.batch
+                    ([ (saveToken token)
+                     ]
+                        ++ (loadStreams model.apiHost streams)
+                    )
+                )
+
+        GetFeedSuccess token list ->
+            ( model, Cmd.none )
+
+        GetUserSuccess token user ->
+            updateStream model token (updateStreamUser user)
+
+        GetMediaSuccess token recent ->
+            updateStream model token (updateStreamRecent recent)
+
+        GenericError error ->
+            ( { model | messages = [ error ] }, Cmd.none )
+
+        ApiError error ->
+            ( { model | messages = [ error ] }, Cmd.none )
+
+        _ ->
+            ( model, Cmd.none )
+
+
 mapUserResult token result =
     case result of
-        Ok user ->
+        Ok (Just user) ->
             GetUserSuccess token user
+
+        Ok Nothing ->
+            ApiError "No user"
 
         Err message ->
             ApiError message
@@ -107,36 +144,18 @@ mapFeedResult token result =
             ApiError message
 
 
-update msg model =
-    case msg of
-        SuccessToken token ->
-            ( { model | streams = (Dict.insert token emptyStream model.streams) }
-            , Cmd.batch
-                [ (saveToken token)
-                , (loadFeed model.apiHost token) |> Task.attempt (mapFeedResult token)
-                , (User.getUserSelf model.apiHost token) |> Task.attempt (mapUserResult token)
-                  -- , (Media.getSelf model.apiHost token) |> Task.attempt (mapMediaResult token)
-                ]
-            )
-
-        GetFeedSuccess token list ->
-            ( model, Cmd.none )
-
-        GetUserSuccess token user ->
-            updateStream model token (updateStreamUser user)
-
-        GetMediaSuccess token recent ->
-            updateStream model token (updateStreamRecent recent)
-
-        GenericError error ->
-            ( { model | messages = [ error ] }, Cmd.none )
-
-        _ ->
-            ( model, Cmd.none )
-
-
 loadFeed apiHost token =
-    (Users.getFriends apiHost token) |> Task.andThen (\friends -> (Task.sequence (List.map (\user -> Media.get apiHost token user.id) friends)))
+    let
+        mapFriends friends =
+            case friends of
+                Just friends ->
+                    (Task.sequence (List.map (\user -> Media.get apiHost token user.id) friends))
+
+                Nothing ->
+                    Task.fail "No firends"
+    in
+        Users.getFriends apiHost token
+            |> Task.andThen mapFriends
 
 
 loadStreams apiHost streams =

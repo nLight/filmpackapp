@@ -21,18 +21,19 @@ used to parse the result.
 -}
 get : Json.Decoder value -> String -> Task String value
 get decoder url =
-    let
-        decode s =
-            case Json.decodeString decoder s of
-                Ok value ->
-                    Task.succeed value
+    randomCallbackName
+        |> Task.andThen (jsonp url)
+        |> Task.andThen (decode decoder)
 
-                Err message ->
-                    Task.fail message
-    in
-        randomCallbackName
-            |> Task.andThen (jsonp url)
-            |> Task.andThen decode
+
+decode : Json.Decoder value -> String -> Task String value
+decode decoder s =
+    case Json.decodeString decoder s of
+        Ok value ->
+            Task.succeed value
+
+        Err message ->
+            Task.fail message
 
 
 {-| Send an arbitrary JSONP request. You will have to map the error for this `Task`

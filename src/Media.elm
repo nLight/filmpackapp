@@ -22,15 +22,15 @@ mediaDecoder =
 
 mediaListDecoder : Decoder (List Media)
 mediaListDecoder =
-    at [ "data" ] (Decode.list mediaDecoder)
+    Decode.list mediaDecoder
 
 
-getSelf : String -> String -> Task String (List Media)
+getSelf : String -> String -> Task String (Maybe (List Media))
 getSelf apiHost token =
     Instagram.get apiHost token mediaListDecoder "/users/self/media/recent"
 
 
-get : String -> String -> String -> Task String (List Media)
+get : String -> String -> String -> Task String (Maybe (List Media))
 get apiHost token id =
     Instagram.get apiHost token mediaListDecoder ("/users/" ++ id ++ "/media/recent")
 
