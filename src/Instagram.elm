@@ -24,7 +24,8 @@ type alias ApiResponse a =
     }
 
 
-apiSuccessDecoder decoder =
+apiResponseDecoder : Decode.Decoder value -> Decode.Decoder (ApiResponse (Maybe value))
+apiResponseDecoder decoder =
     Decode.map3 ApiResponse
         (maybe (field "data" decoder))
         (field "meta"
@@ -35,19 +36,13 @@ apiSuccessDecoder decoder =
             )
         )
         (maybe
-            (field
-                "pagination"
+            (field "pagination"
                 (Decode.map2 ResponsePagination
                     (field "next_url" Decode.string)
                     (field "next_max_id" Decode.string)
                 )
             )
         )
-
-
-apiResponseDecoder : Decode.Decoder value -> Decode.Decoder (ApiResponse (Maybe value))
-apiResponseDecoder decoder =
-    apiSuccessDecoder decoder
 
 
 get apiHost token decoder url_ =
