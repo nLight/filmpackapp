@@ -1,6 +1,6 @@
 module Media exposing (..)
 
-import Html exposing (Html, a, div, text, img)
+import Html exposing (Html, a, div, text, img, i)
 import Html.Attributes exposing (href, src, class, style)
 import Instagram
 import Json.Decode as Decode exposing (Decoder, at)
@@ -12,6 +12,7 @@ type alias Media =
     , created_time : String
     , id : String
     , user : User
+    , likes : Int
     }
 
 
@@ -24,7 +25,7 @@ type alias User =
 
 mediaDecoder : Decoder Media
 mediaDecoder =
-    Decode.map4 Media
+    Decode.map5 Media
         (at [ "images", "standard_resolution", "url" ] Decode.string)
         (at [ "created_time" ] Decode.string)
         (at [ "id" ] Decode.string)
@@ -36,6 +37,7 @@ mediaDecoder =
                 (at [ "id" ] Decode.string)
             )
         )
+        (at [ "likes", "count" ] Decode.int)
 
 
 mediaListDecoder : Decoder (List Media)
@@ -65,5 +67,9 @@ view data =
             , text data.user.username
             ]
         , img [ style [ ( "width", "100%" ) ], class "card-img-top", src data.url ] []
-        , div [ class "card-block" ] [ text data.id ]
+        , div [ class "card-block" ]
+            [ i [ class "fa fa-heart" ] []
+            , text (" " ++ (toString data.likes))
+            , text " likes"
+            ]
         ]
