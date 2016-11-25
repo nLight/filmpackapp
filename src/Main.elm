@@ -1,8 +1,8 @@
 port module Main exposing (..)
 
 import Dict exposing (Dict)
-import Html exposing (Html, a, div, nav, text, img, h1)
-import Html.Attributes exposing (href, src, class)
+import Html exposing (Html, a, div, nav, text, img, h1, h4)
+import Html.Attributes exposing (href, src, class, style)
 import Maybe
 import Media exposing (Media)
 import Task
@@ -229,12 +229,23 @@ emptyStream =
     }
 
 
-login_button =
-    a
-        [ class "btn btn-outline-primary"
-        , href "https://api.instagram.com/oauth/authorize/?scope=public_content+follower_list+comments+relationships+likes&client_id=a59977aae66341598cb366c081e0b62d&redirect_uri=http://packfilmapp.com&response_type=token"
+addStream =
+    div [ class "col-xs-4" ]
+        [ div []
+            [ div []
+                [ div [ class "media", style [ ( "margin", "30px 0" ) ] ]
+                    [ a [ class "media-left" ] [ div [ style [ ( "width", "100px" ), ( "height", "100px" ) ], class "bg-faded rounded-circle" ] [] ]
+                    , div [ class "media-body align-middle" ]
+                        [ a
+                            [ class "btn btn-outline-primary"
+                            , href "https://api.instagram.com/oauth/authorize/?scope=public_content+follower_list+comments+relationships+likes&client_id=a59977aae66341598cb366c081e0b62d&redirect_uri=http://packfilmapp.com&response_type=token"
+                            ]
+                            [ text "Add Stream" ]
+                        ]
+                    ]
+                ]
+            ]
         ]
-        [ text "Add Stream" ]
 
 
 streams data =
@@ -266,7 +277,7 @@ view model =
                 [ div [ class "col-xs-12" ] (messages model.messages)
                 ]
             , div [ class "row" ]
-                ((streams model.streams) ++ [ div [] [ login_button ] ])
+                ((streams model.streams) ++ [ addStream ])
             ]
         , nav [ class "navbar navbar-full navbar-light bg-faded" ]
             [ div [ class "col-xs-12" ] [ text "Font Awesome by Dave Gandy - http://fontawesome.io" ]
