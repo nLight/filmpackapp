@@ -240,7 +240,7 @@ addStream =
                             [ class "btn btn-outline-primary"
                             , href "https://api.instagram.com/oauth/authorize/?scope=public_content+follower_list+comments+relationships+likes&client_id=a59977aae66341598cb366c081e0b62d&redirect_uri=http://packfilmapp.com&response_type=token"
                             ]
-                            [ text "Add Stream" ]
+                            [ text "Login" ]
                         ]
                     ]
                 ]
