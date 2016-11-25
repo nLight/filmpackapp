@@ -1,43 +1,74 @@
 module Media exposing (..)
 
-import Html exposing (Html, a, div, text, img, i)
+import Html exposing (Html, a, div, text, img, i, strong, p)
 import Html.Attributes exposing (href, src, class, style)
 import Instagram
-import Json.Decode as Decode exposing (Decoder, at)
+import Json.Decode as Decode exposing (Decoder, at, field)
 import Task exposing (Task)
 
 
 type alias Media =
-    { url : String
+    { id : String
     , created_time : String
-    , id : String
-    , user : User
+    , url : String
     , likes : Int
+    , user : User
+    , caption : Caption
     }
 
 
 type alias User =
-    { username : String
+    { id : String
+    , username : String
     , profile_picture : String
-    , id : String
+    }
+
+
+type alias Caption =
+    { id : String
+    , created_time : String
+    , text : String
+    , from : FromUser
+    }
+
+
+type alias FromUser =
+    { id :
+        String
+        -- , userType : String
+    , username : String
+    , full_name : String
     }
 
 
 mediaDecoder : Decoder Media
 mediaDecoder =
-    Decode.map5 Media
+    Decode.map6 Media
+        (field "id" Decode.string)
+        (field "created_time" Decode.string)
         (at [ "images", "standard_resolution", "url" ] Decode.string)
-        (at [ "created_time" ] Decode.string)
-        (at [ "id" ] Decode.string)
-        (at [ "user" ]
-            (Decode.map3
-                User
+        (at [ "likes", "count" ] Decode.int)
+        (field "user"
+            (Decode.map3 User
+                (at [ "id" ] Decode.string)
                 (at [ "username" ] Decode.string)
                 (at [ "profile_picture" ] Decode.string)
-                (at [ "id" ] Decode.string)
             )
         )
-        (at [ "likes", "count" ] Decode.int)
+        (field "caption"
+            (Decode.map4 Caption
+                (field "id" Decode.string)
+                (field "created_time" Decode.string)
+                (field "text" Decode.string)
+                (field "from"
+                    (Decode.map3 FromUser
+                        (field "id" Decode.string)
+                        (field "username" Decode.string)
+                        (field "full_name" Decode.string)
+                    )
+                )
+            )
+        )
 
 
 mediaListDecoder : Decoder (List Media)
@@ -68,8 +99,15 @@ view data =
             ]
         , img [ style [ ( "width", "100%" ) ], class "card-img-top", src data.url ] []
         , div [ class "card-block" ]
-            [ i [ class "fa fa-heart" ] []
-            , text (" " ++ (toString data.likes))
-            , text " likes"
+            [ p [ class "card-text" ]
+                [ i [ class "fa fa-heart" ] []
+                , text (" " ++ (toString data.likes))
+                , text " likes"
+                ]
+            , p [ class "card-text" ]
+                [ strong [] [ text data.caption.from.username ]
+                , text " "
+                , text data.caption.text
+                ]
             ]
         ]
