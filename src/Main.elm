@@ -280,6 +280,10 @@ view model =
                 ((streams model.streams) ++ [ addStream ])
             ]
         , nav [ class "navbar navbar-full navbar-light bg-faded" ]
-            [ div [ class "col-xs-12" ] [ text "Font Awesome by Dave Gandy - http://fontawesome.io" ]
+            [ div [ class "col-xs-12" ]
+                [ a [ href "http://packfilmapp.com/legal/privacypolicy.html" ] [ text "Privacy Policy" ]
+                , text ", "
+                , text "Font Awesome by Dave Gandy - http://fontawesome.io"
+                ]
             ]
         ]
