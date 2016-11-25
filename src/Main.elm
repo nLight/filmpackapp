@@ -267,5 +267,8 @@ view model =
                 ]
             , div [ class "row" ]
                 ((streams model.streams) ++ [ div [] [ login_button ] ])
+            , div [ class "row" ]
+                [ div [ class "col-xs-12" ] [ text "Font Awesome by Dave Gandy - http://fontawesome.io" ]
+                ]
             ]
         ]
