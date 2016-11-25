@@ -11,6 +11,7 @@ type alias Media =
     { id : String
     , created_time : String
     , url : String
+    , link : String
     , likes : Int
     , user : User
     , caption : Caption
@@ -43,10 +44,11 @@ type alias FromUser =
 
 mediaDecoder : Decoder Media
 mediaDecoder =
-    Decode.map6 Media
+    Decode.map7 Media
         (field "id" Decode.string)
         (field "created_time" Decode.string)
         (at [ "images", "standard_resolution", "url" ] Decode.string)
+        (field "link" Decode.string)
         (at [ "likes", "count" ] Decode.int)
         (field "user"
             (Decode.map3 User
@@ -97,7 +99,9 @@ view data =
                 []
             , text data.user.username
             ]
-        , img [ style [ ( "width", "100%" ) ], class "card-img-top", src data.url ] []
+        , a [ href data.link ]
+            [ img [ style [ ( "width", "100%" ) ], class "card-img-top", src data.url ] []
+            ]
         , div [ class "card-block" ]
             [ p [ class "card-text" ]
                 [ i [ class "fa fa-heart" ] []
