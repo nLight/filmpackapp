@@ -6826,7 +6826,7 @@ function mapProperty(func, property)
 	return on(
 		property.realKey,
 		property.value.options,
-		A2(_elm_lang$core$Json$map, func, property.value.decoder)
+		A2(_elm_lang$core$Json_Decode$map, func, property.value.decoder)
 	);
 }
 
@@ -8425,6 +8425,7 @@ return {
 };
 
 }();
+
 var _elm_lang$virtual_dom$VirtualDom$programWithFlags = function (impl) {
 	return A2(_elm_lang$virtual_dom$Native_VirtualDom.programWithFlags, _elm_lang$virtual_dom$VirtualDom_Debug$wrapWithFlags, impl);
 };
@@ -9900,7 +9901,7 @@ var _nLight$packfilmapp$Main$addStream = A2(
 			}),
 		_1: {ctor: '[]'}
 	});
-var _nLight$packfilmapp$Main$view = function (model) {
+var _nLight$packfilmapp$Main$appView = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
 		{ctor: '[]'},
@@ -10025,6 +10026,116 @@ var _nLight$packfilmapp$Main$view = function (model) {
 						}),
 					_1: {ctor: '[]'}
 				}
+			}
+		});
+};
+var _nLight$packfilmapp$Main$view = function (model) {
+	return A3(
+		_elm_lang$html$Html$node,
+		'html',
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: A3(
+				_elm_lang$html$Html$node,
+				'head',
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: A3(
+						_elm_lang$html$Html$node,
+						'meta',
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$charset('UTF-8'),
+							_1: {ctor: '[]'}
+						},
+						{ctor: '[]'}),
+					_1: {
+						ctor: '::',
+						_0: A3(
+							_elm_lang$html$Html$node,
+							'title',
+							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text('Packfilm App'),
+								_1: {ctor: '[]'}
+							}),
+						_1: {
+							ctor: '::',
+							_0: A3(
+								_elm_lang$html$Html$node,
+								'script',
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$type_('text/javascript'),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$src('static/elm.js'),
+										_1: {ctor: '[]'}
+									}
+								},
+								{ctor: '[]'}),
+							_1: {
+								ctor: '::',
+								_0: A3(
+									_elm_lang$html$Html$node,
+									'link',
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$rel('stylesheet'),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$href('https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css'),
+											_1: {
+												ctor: '::',
+												_0: A2(_elm_lang$html$Html_Attributes$attribute, 'integrity', 'sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi'),
+												_1: {
+													ctor: '::',
+													_0: A2(_elm_lang$html$Html_Attributes$attribute, 'crossorigin', 'anonymous'),
+													_1: {ctor: '[]'}
+												}
+											}
+										}
+									},
+									{ctor: '[]'}),
+								_1: {
+									ctor: '::',
+									_0: A3(
+										_elm_lang$html$Html$node,
+										'link',
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$rel('stylesheet'),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$href('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css'),
+												_1: {
+													ctor: '::',
+													_0: A2(_elm_lang$html$Html_Attributes$attribute, 'crossorigin', 'anonymous'),
+													_1: {ctor: '[]'}
+												}
+											}
+										},
+										{ctor: '[]'}),
+									_1: {ctor: '[]'}
+								}
+							}
+						}
+					}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$body,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _nLight$packfilmapp$Main$appView(model),
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
 			}
 		});
 };

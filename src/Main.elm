@@ -1,8 +1,8 @@
 port module Main exposing (..)
 
 import Dict exposing (Dict)
-import Html exposing (Html, a, div, nav, text, img, h1, h4)
-import Html.Attributes exposing (href, src, class, style)
+import Html exposing (Html, a, div, nav, text, img, h1, h4, node, body)
+import Html.Attributes exposing (href, src, class, style, charset, rel, type_, attribute)
 import Maybe
 import Media exposing (Media)
 import Task
@@ -267,7 +267,7 @@ messages data =
     List.map (\message -> div [ class "alert alert-danger" ] [ text message ]) data
 
 
-view model =
+appView model =
     div []
         [ nav [ class "navbar navbar-full navbar-light bg-faded navbar-static-top" ]
             [ a [ class "navbar-brand" ] [ text "Packfilm" ]
@@ -285,5 +285,22 @@ view model =
                 , text ", "
                 , text "Font Awesome by Dave Gandy - http://fontawesome.io"
                 ]
+            ]
+        ]
+
+
+view model =
+    (node "html")
+        []
+        [ (node "head")
+            []
+            [ (node "meta") [ charset "UTF-8" ] []
+            , (node "title") [] [ text "Packfilm App" ]
+            , (node "script") [ type_ "text/javascript", src "static/elm.js" ] []
+            , (node "link") [ rel "stylesheet", href "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css", attribute "integrity" "sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi", attribute "crossorigin" "anonymous" ] []
+            , (node "link") [ rel "stylesheet", href "https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css", attribute "crossorigin" "anonymous" ] []
+            ]
+        , body []
+            [ appView model
             ]
         ]
