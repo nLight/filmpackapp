@@ -2,11 +2,12 @@ module AppDev exposing (..)
 
 import Main
 import Html
+import DevUtil
 
 
 devFlags =
     { apiHost = "https://api.instagram.com/v1"
-    , streams = Nothing
+    , streams = DevUtil.getStreams
     }
 
 
