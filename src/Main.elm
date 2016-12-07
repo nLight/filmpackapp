@@ -201,26 +201,18 @@ updateStreamRecent media stream =
 updateStreamFeed : List (Maybe (List Media.Media)) -> (Maybe Stream -> Maybe Stream)
 updateStreamFeed list stream =
     let
-        compareMedia a b =
-            case compare a.created_time b.created_time of
-                LT ->
-                    GT
-
-                EQ ->
-                    EQ
-
-                GT ->
-                    LT
-
-        filtered =
-            List.filterMap (\s -> s) list |> List.concat |> List.sortWith compareMedia
+        sortedFeed =
+            list
+                |> List.filterMap identity
+                |> List.concat
+                |> List.sortWith Media.compareTime
     in
         case stream of
             Just stream ->
-                Just { stream | recent = filtered }
+                Just { stream | recent = sortedFeed }
 
             Nothing ->
-                Just { emptyStream | recent = filtered }
+                Just { emptyStream | recent = sortedFeed }
 
 
 emptyStream =

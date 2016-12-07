@@ -88,6 +88,18 @@ get apiHost token id =
     Instagram.get apiHost token mediaListDecoder ("/users/" ++ id ++ "/media/recent")
 
 
+compareTime a b =
+    case compare a.created_time b.created_time of
+        LT ->
+            GT
+
+        EQ ->
+            EQ
+
+        GT ->
+            LT
+
+
 view data =
     div [ class "card" ]
         [ div [ class "card-block" ]
