@@ -52,7 +52,7 @@ getUserSelf apiHost token =
 
 getUser : String -> String -> String -> Task Instagram.Error (Maybe User)
 getUser apiHost token id =
-    Instagram.get apiHost token user ("/v1/users/" ++ id)
+    Instagram.get apiHost token user ("/users/" ++ id)
 
 
 countsView data =
