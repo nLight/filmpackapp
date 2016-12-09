@@ -14,7 +14,7 @@ type alias Media =
     , link : String
     , likes : Int
     , user : User
-    , caption : Caption
+    , caption : Maybe Caption
     }
 
 
@@ -34,9 +34,7 @@ type alias Caption =
 
 
 type alias FromUser =
-    { id :
-        String
-        -- , userType : String
+    { id : String
     , username : String
     , full_name : String
     }
@@ -57,16 +55,18 @@ mediaDecoder =
                 (at [ "profile_picture" ] Decode.string)
             )
         )
-        (field "caption"
-            (Decode.map4 Caption
-                (field "id" Decode.string)
-                (field "created_time" Decode.string)
-                (field "text" Decode.string)
-                (field "from"
-                    (Decode.map3 FromUser
-                        (field "id" Decode.string)
-                        (field "username" Decode.string)
-                        (field "full_name" Decode.string)
+        (Decode.maybe
+            (field "caption"
+                (Decode.map4 Caption
+                    (field "id" Decode.string)
+                    (field "created_time" Decode.string)
+                    (field "text" Decode.string)
+                    (field "from"
+                        (Decode.map3 FromUser
+                            (field "id" Decode.string)
+                            (field "username" Decode.string)
+                            (field "full_name" Decode.string)
+                        )
                     )
                 )
             )
@@ -100,6 +100,20 @@ compareTime a b =
             LT
 
 
+caption data =
+    case data of
+        Just caption ->
+            (p [ class "card-text" ]
+                [ strong [] [ text caption.from.username ]
+                , text " "
+                , text caption.text
+                ]
+            )
+
+        Nothing ->
+            div [] []
+
+
 view data =
     div [ class "card" ]
         [ div [ class "card-block" ]
@@ -120,10 +134,6 @@ view data =
                 , text (" " ++ (toString data.likes))
                 , text " likes"
                 ]
-            , p [ class "card-text" ]
-                [ strong [] [ text data.caption.from.username ]
-                , text " "
-                , text data.caption.text
-                ]
+            , caption data.caption
             ]
         ]
