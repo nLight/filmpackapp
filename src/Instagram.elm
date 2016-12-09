@@ -14,7 +14,7 @@ type alias ResponseMeta =
 
 
 type alias ResponsePagination =
-    { next_url : String, next_max_id : String }
+    { next_url : Maybe String, next_max_id : Maybe String }
 
 
 type alias ApiResponse a =
@@ -38,8 +38,8 @@ apiResponseDecoder decoder =
         (maybe
             (field "pagination"
                 (Decode.map2 ResponsePagination
-                    (field "next_url" Decode.string)
-                    (field "next_max_id" Decode.string)
+                    (maybe (field "next_url" Decode.string))
+                    (maybe (field "next_max_id" Decode.string))
                 )
             )
         )
