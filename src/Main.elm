@@ -152,7 +152,7 @@ loadFeed apiHost token =
                     (Task.sequence (List.map (\user -> Media.get apiHost token user.id) friends))
 
                 Nothing ->
-                    Task.fail "No friends"
+                    Task.succeed []
     in
         Users.getFriends apiHost token
             |> Task.andThen mapFriends
