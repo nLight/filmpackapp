@@ -28,8 +28,8 @@ view model =
             []
             [ (node "meta") [ charset "UTF-8" ] []
             , (node "title") [] [ text "Packfilm App" ]
-            , (node "link") [ rel "stylesheet", href "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css", attribute "integrity" "sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi", attribute "crossorigin" "anonymous" ] []
-            , (node "link") [ rel "stylesheet", href "https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css", attribute "crossorigin" "anonymous" ] []
+            , (node "link") [ rel "stylesheet", href "/static/bootstrap.min.css", attribute "integrity" "sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi", attribute "crossorigin" "anonymous" ] []
+            , (node "link") [ rel "stylesheet", href "/static/font-awesome.min.css", attribute "crossorigin" "anonymous" ] []
             ]
         , body []
             [ Main.appView model
