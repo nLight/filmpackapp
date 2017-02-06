@@ -149,6 +149,7 @@ loadFeed apiHost token =
         mapFriends friends =
             case friends of
                 Just friends ->
+                    -- TODO: Limit number of friends?
                     (Task.sequence (List.map (\user -> Media.get apiHost token user.id) friends))
 
                 Nothing ->
@@ -240,23 +241,28 @@ addStream =
         ]
 
 
-streams data =
-    (List.map stream (Dict.values data))
+streamsView data =
+    List.map streamView (Dict.values data)
 
 
-stream data =
+streamView data =
     div [ class "col-xs-4" ]
         [ div []
             [ div []
                 [ User.cardView data.user
+                  -- TODO: Limit to 250? images
                 , div [] (List.map Media.view data.recent)
                 ]
             ]
         ]
 
 
-messages data =
-    List.map (\message -> div [ class "alert alert-danger" ] [ text message ]) data
+messageView message =
+    div [ class "alert alert-danger" ] [ text message ]
+
+
+messagesView data =
+    List.map messageView data
 
 
 appView model =
@@ -266,10 +272,10 @@ appView model =
             ]
         , div [ class "container-fluid" ]
             [ div [ class "row" ]
-                [ div [ class "col-xs-12" ] (messages model.messages)
+                [ div [ class "col-xs-12" ] (messagesView model.messages)
                 ]
             , div [ class "row" ]
-                ((streams model.streams) ++ [ addStream ])
+                ((streamsView model.streams) ++ [ addStream ])
             ]
         , nav [ class "navbar navbar-full navbar-light bg-faded" ]
             [ div [ class "col-xs-12" ]
