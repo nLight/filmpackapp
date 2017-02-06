@@ -266,7 +266,7 @@ messagesView data =
 
 
 calculateWidth streams =
-    (toString ((Dict.size streams) * 400)) ++ "px"
+    (toString ((Dict.size streams + 1) * 400)) ++ "px"
 
 
 appView model =
