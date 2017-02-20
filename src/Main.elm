@@ -281,7 +281,7 @@ calculateWidth streams =
 appView model =
     div [ style [ ( "min-width", calculateWidth model.streams ) ] ]
         [ nav [ class "navbar navbar-full navbar-light bg-faded navbar-static-top" ]
-            [ a [ class "navbar-brand" ] [ text "Packfilm" ]
+            [ a [ class "navbar-brand" ] [ text "Packfilm - all your Instagram accounts on one page" ]
             ]
         , div [ class "container-fluid" ]
             [ div [ class "row" ]
